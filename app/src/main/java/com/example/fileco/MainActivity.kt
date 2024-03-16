@@ -71,6 +71,9 @@ fun HomeUi() {
 
 
         ){
+
+
+
             Text(
                 text = "Compressor",
                 color = fontColor,
@@ -115,11 +118,25 @@ fun CustomButton() {
                 modifier = Modifier
                     .height(68.dp)
                     .width(321.dp)
-                    .background(color = Color(android.graphics.Color.parseColor("#526D82")), shape = RoundedCornerShape(60.dp))
+                    .background(
+                        color = Color(android.graphics.Color.parseColor("#526D82")),
+                        shape = RoundedCornerShape(60.dp)
+                    )
                     .border(3.dp, color = ButtonStorkeColor, shape = RoundedCornerShape(60.dp))
 
 
             ){
+                Text(
+                    text ="File Compression",
+                    fontSize = 25.sp,
+                    color = Color.White,
+                    letterSpacing = -1.sp,
+                    fontWeight = FontWeight.Medium,
+
+                    modifier = Modifier
+                        .offset(x=100.dp,y=16.dp)
+
+                )
 
             }
 
@@ -139,12 +156,25 @@ fun CustomButton() {
                 modifier = Modifier
                     .height(68.dp)
                     .width(321.dp)
-                    .background(color = Color(android.graphics.Color.parseColor("#526D82")), shape = RoundedCornerShape(60.dp))
+                    .background(
+                        color = Color(android.graphics.Color.parseColor("#526D82")),
+                        shape = RoundedCornerShape(60.dp)
+                    )
                     .border(3.dp, color = ButtonStorkeColor, shape = RoundedCornerShape(60.dp))
 
 
             ){
+                Text(
+                    text ="Audio Compression",
+                    fontSize = 25.sp,
+                    color = Color.White,
+                    letterSpacing = -1.sp,
+                    fontWeight = FontWeight.Medium,
 
+                    modifier = Modifier
+                        .offset(x=100.dp,y=16.dp)
+
+                )
             }
 
 
@@ -163,12 +193,25 @@ fun CustomButton() {
                 modifier = Modifier
                     .height(68.dp)
                     .width(321.dp)
-                    .background(color = Color(android.graphics.Color.parseColor("#526D82")), shape = RoundedCornerShape(60.dp))
+                    .background(
+                        color = Color(android.graphics.Color.parseColor("#526D82")),
+                        shape = RoundedCornerShape(60.dp)
+                    )
                     .border(3.dp, color = ButtonStorkeColor, shape = RoundedCornerShape(60.dp))
 
 
             ){
+                Text(
+                    text ="Video Compression",
+                    fontSize = 25.sp,
+                    color = Color.White,
+                    letterSpacing = -1.sp,
+                    fontWeight = FontWeight.Medium,
 
+                    modifier = Modifier
+                        .offset(x=100.dp,y=16.dp)
+
+                )
             }
 
 
@@ -187,12 +230,25 @@ fun CustomButton() {
                 modifier = Modifier
                     .height(68.dp)
                     .width(321.dp)
-                    .background(color = Color(android.graphics.Color.parseColor("#526D82")), shape = RoundedCornerShape(60.dp))
+                    .background(
+                        color = Color(android.graphics.Color.parseColor("#526D82")),
+                        shape = RoundedCornerShape(60.dp)
+                    )
                     .border(3.dp, color = ButtonStorkeColor, shape = RoundedCornerShape(60.dp))
 
 
             ){
+                Text(
+                    text ="Image Compression",
+                    fontSize = 25.sp,
+                    color = Color.White,
+                    letterSpacing = -1.sp,
+                    fontWeight = FontWeight.Medium,
 
+                    modifier = Modifier
+                        .offset(x=100.dp,y=16.dp)
+
+                )
             }
 
 
