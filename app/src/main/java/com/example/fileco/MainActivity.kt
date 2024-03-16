@@ -125,18 +125,47 @@ fun CustomButton() {
                     .border(3.dp, color = ButtonStorkeColor, shape = RoundedCornerShape(60.dp))
 
 
+
             ){
+
+
+
+
                 Text(
+                    modifier = Modifier
+                        .offset(x=100.dp,y=15.dp),
                     text ="File Compression",
                     fontSize = 25.sp,
                     color = Color.White,
                     letterSpacing = -1.sp,
                     fontWeight = FontWeight.Medium,
 
-                    modifier = Modifier
-                        .offset(x=100.dp,y=16.dp)
+
 
                 )
+                    //logo for file compression
+                Column(
+                    modifier = Modifier
+                        .offset(x=27.dp,y=-16.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .width(50.dp)
+                            .height(50.dp)
+                            .background( color = Color(android.graphics.Color.parseColor("#DDE6ED")),
+                                shape = RoundedCornerShape(5.dp)
+                            )
+
+
+
+
+
+
+                    ){
+
+                    }
+
+                }
 
             }
 
@@ -175,6 +204,30 @@ fun CustomButton() {
                         .offset(x=100.dp,y=16.dp)
 
                 )
+                //logo for Audio Compression
+                Column(
+                    modifier = Modifier
+                        .offset(x=27.dp,y=-16.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .width(50.dp)
+                            .height(50.dp)
+                            .background( color = Color(android.graphics.Color.parseColor("#DDE6ED")),
+                                shape = RoundedCornerShape(5.dp)
+                            )
+
+
+
+
+
+
+                    ){
+
+                    }
+
+                }
+
             }
 
 
@@ -212,6 +265,29 @@ fun CustomButton() {
                         .offset(x=100.dp,y=16.dp)
 
                 )
+                //logo for Video Compression
+                Column(
+                    modifier = Modifier
+                        .offset(x=27.dp,y=-16.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .width(50.dp)
+                            .height(50.dp)
+                            .background( color = Color(android.graphics.Color.parseColor("#DDE6ED")),
+                                shape = RoundedCornerShape(5.dp)
+                            )
+
+
+
+
+
+
+                    ){
+
+                    }
+
+                }
             }
 
 
@@ -249,6 +325,29 @@ fun CustomButton() {
                         .offset(x=100.dp,y=16.dp)
 
                 )
+                //logo for Image Compression
+                Column(
+                    modifier = Modifier
+                        .offset(x=27.dp,y=-16.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .width(50.dp)
+                            .height(50.dp)
+                            .background( color = Color(android.graphics.Color.parseColor("#DDE6ED")),
+                                shape = RoundedCornerShape(5.dp)
+                            )
+
+
+
+
+
+
+                    ){
+
+                    }
+
+                }
             }
 
 
@@ -256,5 +355,12 @@ fun CustomButton() {
         }
     }
 
+
+}
+
+@Preview
+@Composable
+private fun buttonPrev() {
+    CustomButton()
 
 }
