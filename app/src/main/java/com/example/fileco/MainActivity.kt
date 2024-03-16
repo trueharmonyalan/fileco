@@ -43,6 +43,7 @@ class MainActivity : ComponentActivity() {
 fun homeUi() {
 
     val fontColor = Color(0xFF526D82)
+
         Box(
 
         modifier = Modifier
