@@ -1,6 +1,5 @@
 package com.example.fileco
 
-import android.view.Window
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,9 +22,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 
 @Composable
-fun WindowAudioCOmpression() {
+fun WindowAudioCompression(navController: NavHostController) {
 
     val buttonStrokeColor = Color(0xFF9DB2BF)
 
@@ -204,10 +204,3 @@ fun WindowAudioCOmpression() {
 
 }
 
-@Preview
-@Composable
-private fun WindowAudioCOmpressionPrev() {
-
-    WindowAudioCOmpression()
-
-}

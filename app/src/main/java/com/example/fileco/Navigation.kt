@@ -18,6 +18,22 @@ fun NavigationForFileCo() {
             HomeUi(navController)
         }
 
+        composable(route="File Compression"){
+            WindowFileCompression(navController)
+        }
+
+        composable(route="Audio Compressor"){
+            WindowAudioCompression(navController)
+        }
+
+        composable(route="Video Compressor"){
+            WindowVideoCompression(navController)
+        }
+        composable(route="Image Compressor"){
+            WindowImageCompression(navController)
+        }
+
+
     }
 
 }

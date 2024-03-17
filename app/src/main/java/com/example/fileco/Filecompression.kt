@@ -15,18 +15,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 
 @Composable
-fun WindowFileCompression() {
+fun WindowFileCompression(navController: NavHostController) {
 
     val buttonStrokeColor = Color(0xFF9DB2BF)
 
@@ -207,9 +206,3 @@ fun WindowFileCompression() {
 
 }
 
-@Preview
-@Composable
-private fun WindowPrev() {
-    WindowFileCompression()
-
-}
