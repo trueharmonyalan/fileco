@@ -11,7 +11,7 @@ fun NavigationForFileCo() {
 
     NavHost(
         navController = navController,
-        startDestination = "",
+        startDestination = "Home screen",
     ){
 
         composable(route="Home screen"){
