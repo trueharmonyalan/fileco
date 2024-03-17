@@ -3,38 +3,40 @@ package com.example.fileco
 import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.R
+
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
+
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.absoluteOffset
-import androidx.compose.foundation.layout.fillMaxHeight
+
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.fileco.ui.theme.FilecoTheme
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,7 +75,6 @@ fun HomeUi() {
         ){
 
 
-
             Text(
                 text = "Compressor",
                 color = fontColor,
@@ -96,7 +97,8 @@ fun HomeUi() {
 
 @Composable
 fun CustomButton() {
-    val ButtonStorkeColor = Color(0xFF9DB2BF)
+    val buttonStrokeColor = Color(0xFF9DB2BF)
+
 
     Column(
         horizontalAlignment = Alignment.End,
@@ -122,7 +124,7 @@ fun CustomButton() {
                         color = Color(android.graphics.Color.parseColor("#526D82")),
                         shape = RoundedCornerShape(60.dp)
                     )
-                    .border(3.dp, color = ButtonStorkeColor, shape = RoundedCornerShape(60.dp))
+                    .border(3.dp, color = buttonStrokeColor, shape = RoundedCornerShape(60.dp))
 
 
 
@@ -137,7 +139,7 @@ fun CustomButton() {
                     text ="File Compression",
                     fontSize = 25.sp,
                     color = Color.White,
-                    letterSpacing = -1.sp,
+                    letterSpacing = (-1).sp,
                     fontWeight = FontWeight.Medium,
 
 
@@ -146,13 +148,14 @@ fun CustomButton() {
                     //logo for file compression
                 Column(
                     modifier = Modifier
-                        .offset(x=27.dp,y=-16.dp)
+                        .offset(x=27.dp,y= (-16).dp)
                 ) {
                     Column(
                         modifier = Modifier
                             .width(50.dp)
                             .height(50.dp)
-                            .background( color = Color(android.graphics.Color.parseColor("#DDE6ED")),
+                            .background(
+                                color = Color(android.graphics.Color.parseColor("#DDE6ED")),
                                 shape = RoundedCornerShape(5.dp)
                             )
 
@@ -162,6 +165,16 @@ fun CustomButton() {
 
 
                     ){
+
+                        // Logo Implemented in Rounded Rectangle for file compression
+                        Image(painter = painterResource(id = R.drawable.article_fill0_wght400_grad0_opsz24),
+                            contentDescription = "Image of Image compression",
+                            modifier = Modifier
+                                .offset(x=5.dp, y = (0).dp)
+                                .size(40.dp)
+
+                        )
+
 
                     }
 
@@ -189,7 +202,7 @@ fun CustomButton() {
                         color = Color(android.graphics.Color.parseColor("#526D82")),
                         shape = RoundedCornerShape(60.dp)
                     )
-                    .border(3.dp, color = ButtonStorkeColor, shape = RoundedCornerShape(60.dp))
+                    .border(3.dp, color = buttonStrokeColor, shape = RoundedCornerShape(60.dp))
 
 
             ){
@@ -197,7 +210,7 @@ fun CustomButton() {
                     text ="Audio Compression",
                     fontSize = 25.sp,
                     color = Color.White,
-                    letterSpacing = -1.sp,
+                    letterSpacing = (-1).sp,
                     fontWeight = FontWeight.Medium,
 
                     modifier = Modifier
@@ -207,13 +220,14 @@ fun CustomButton() {
                 //logo for Audio Compression
                 Column(
                     modifier = Modifier
-                        .offset(x=27.dp,y=-16.dp)
+                        .offset(x=27.dp,y= (-16).dp)
                 ) {
                     Column(
                         modifier = Modifier
                             .width(50.dp)
                             .height(50.dp)
-                            .background( color = Color(android.graphics.Color.parseColor("#DDE6ED")),
+                            .background(
+                                color = Color(android.graphics.Color.parseColor("#DDE6ED")),
                                 shape = RoundedCornerShape(5.dp)
                             )
 
@@ -223,6 +237,15 @@ fun CustomButton() {
 
 
                     ){
+                        // Logo Implemented in Rounded Rectangle for Audio Compression
+                        Image(painter = painterResource(id = R.drawable.graphic_eq_fill0_wght400_grad0_opsz24),
+                            contentDescription = "Image of Image compression",
+                            modifier = Modifier
+                                .offset(x=5.dp, y = (0).dp)
+                                .size(40.dp)
+
+                        )
+
 
                     }
 
@@ -250,7 +273,7 @@ fun CustomButton() {
                         color = Color(android.graphics.Color.parseColor("#526D82")),
                         shape = RoundedCornerShape(60.dp)
                     )
-                    .border(3.dp, color = ButtonStorkeColor, shape = RoundedCornerShape(60.dp))
+                    .border(3.dp, color = buttonStrokeColor, shape = RoundedCornerShape(60.dp))
 
 
             ){
@@ -258,7 +281,7 @@ fun CustomButton() {
                     text ="Video Compression",
                     fontSize = 25.sp,
                     color = Color.White,
-                    letterSpacing = -1.sp,
+                    letterSpacing = (-1).sp,
                     fontWeight = FontWeight.Medium,
 
                     modifier = Modifier
@@ -268,13 +291,14 @@ fun CustomButton() {
                 //logo for Video Compression
                 Column(
                     modifier = Modifier
-                        .offset(x=27.dp,y=-16.dp)
+                        .offset(x=27.dp,y= (-16).dp)
                 ) {
                     Column(
                         modifier = Modifier
                             .width(50.dp)
                             .height(50.dp)
-                            .background( color = Color(android.graphics.Color.parseColor("#DDE6ED")),
+                            .background(
+                                color = Color(android.graphics.Color.parseColor("#DDE6ED")),
                                 shape = RoundedCornerShape(5.dp)
                             )
 
@@ -284,6 +308,14 @@ fun CustomButton() {
 
 
                     ){
+                        // Logo Implemented in Rounded Rectangle for Video Compression
+                        Image(painter = painterResource(id = R.drawable.video_library_fill0_wght400_grad0_opsz24),
+                            contentDescription = "Image of Image compression",
+                            modifier = Modifier
+                                .offset(x = 5.dp, y = (0).dp)
+                                .size(35.dp)
+
+                        )
 
                     }
 
@@ -310,7 +342,7 @@ fun CustomButton() {
                         color = Color(android.graphics.Color.parseColor("#526D82")),
                         shape = RoundedCornerShape(60.dp)
                     )
-                    .border(3.dp, color = ButtonStorkeColor, shape = RoundedCornerShape(60.dp))
+                    .border(3.dp, color = buttonStrokeColor, shape = RoundedCornerShape(60.dp))
 
 
             ){
@@ -318,7 +350,7 @@ fun CustomButton() {
                     text ="Image Compression",
                     fontSize = 25.sp,
                     color = Color.White,
-                    letterSpacing = -1.sp,
+                    letterSpacing = (-1).sp,
                     fontWeight = FontWeight.Medium,
 
                     modifier = Modifier
@@ -328,13 +360,14 @@ fun CustomButton() {
                 //logo for Image Compression
                 Column(
                     modifier = Modifier
-                        .offset(x=27.dp,y=-16.dp)
+                        .offset(x=27.dp,y= (-16).dp)
                 ) {
                     Column(
                         modifier = Modifier
                             .width(50.dp)
                             .height(50.dp)
-                            .background( color = Color(android.graphics.Color.parseColor("#DDE6ED")),
+                            .background(
+                                color = Color(android.graphics.Color.parseColor("#DDE6ED")),
                                 shape = RoundedCornerShape(5.dp)
                             )
 
@@ -344,6 +377,14 @@ fun CustomButton() {
 
 
                     ){
+                        // Logo Implemented in Rounded Rectangle for Image Compression
+                            Image(painter = painterResource(id = R.drawable.image_fill0_wght400_grad0_opsz24),
+                                contentDescription = "Image of Image compression",
+                                modifier = Modifier
+                                    .offset(x = 5.dp, y = (0).dp)
+                                    .size(40.dp)
+
+                            )
 
                     }
 
@@ -358,9 +399,14 @@ fun CustomButton() {
 
 }
 
+
 @Preview
 @Composable
-private fun buttonPrev() {
-    CustomButton()
+ fun ButtonPrev(
+) {
+     Column(modifier = Modifier.fillMaxSize()) {
+         CustomButton()
+     }
+
 
 }
