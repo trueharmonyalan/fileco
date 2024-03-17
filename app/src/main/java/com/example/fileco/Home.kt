@@ -15,10 +15,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 
 @SuppressLint("SuspiciousIndentation")
 @Composable
-fun HomeUi() {
+fun HomeUi(navController: NavHostController) {
 
     val fontColor = Color(0xFF526D82)
 
