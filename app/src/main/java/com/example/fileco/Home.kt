@@ -71,7 +71,7 @@ fun HomeUi(navController: NavHostController) {
             horizontalAlignment = Alignment.End,
             modifier = Modifier
                 .padding(30.dp)
-                .offset(10.dp, 200.dp)
+                .offset(3.dp, 150.dp)
 
 
         ) {
