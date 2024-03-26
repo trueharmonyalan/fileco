@@ -40,7 +40,7 @@ fun HomeUi(navController: NavHostController) {
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color(android.graphics.Color.parseColor("#27374D")))
-            .offset(x = 1.dp, y = 24.dp)
+            .offset(x = 1.dp, y = 20.dp)
 
     ) {
 
@@ -168,6 +168,7 @@ fun HomeUi(navController: NavHostController) {
 
             ){
                 //button design for Button TWo
+
                 Column(
                     modifier = Modifier
                         .height(68.dp)

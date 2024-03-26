@@ -183,12 +183,12 @@ fun WindowAudioCompression(navHostController: NavHostController) {
                             )
                     },
                     modifier = Modifier
-                        .width(140.dp)
-                        .offset(x = 100.dp, y = 5.dp)
+                        .width(100.dp)
+                        .offset(x = 128.dp, y = 5.dp)
                         .border(
-                            width = 3.dp,
+                            width = 2.dp,
                             color = buttonStrokeColor,
-                            shape = RoundedCornerShape(30.dp)
+                            shape = RoundedCornerShape(5.dp)
                         ),
                     colors = TextFieldDefaults.textFieldColors(
                         containerColor = Color.Transparent,

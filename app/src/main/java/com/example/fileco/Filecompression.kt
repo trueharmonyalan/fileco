@@ -1,5 +1,6 @@
 package com.example.fileco
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -38,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 
+@SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WindowFileCompression(navController: NavHostController) {
@@ -47,6 +49,8 @@ fun WindowFileCompression(navController: NavHostController) {
     }
 
     val buttonStrokeColor = Color(0xFF9DB2BF)
+
+
 
     Box(
 
@@ -143,6 +147,7 @@ fun WindowFileCompression(navController: NavHostController) {
 
 
             }
+
         }
 
 
@@ -191,12 +196,12 @@ fun WindowFileCompression(navController: NavHostController) {
                             )
                         },
                         modifier = Modifier
-                            .width(140.dp)
-                            .offset(x = 100.dp, y = 5.dp)
+                            .width(100.dp)
+                            .offset(x = 128.dp, y = 5.dp)
                             .border(
-                                width = 3.dp,
+                                width = 2.dp,
                                 color = buttonStrokeColor,
-                                shape = RoundedCornerShape(30.dp)
+                                shape = RoundedCornerShape(5.dp)
                             ),
                             colors = TextFieldDefaults.textFieldColors(
                                 containerColor = Color.Transparent,
