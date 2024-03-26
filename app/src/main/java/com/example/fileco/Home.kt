@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -24,57 +26,58 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 
 val buttonStrokeColor = Color(0xFF9DB2BF)
 @SuppressLint("SuspiciousIndentation")
 @Composable
 fun HomeUi(navController: NavHostController) {
 
-    val fontColor = Color(0xFF526D82)
-
-    Box(
-
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = Color(android.graphics.Color.parseColor("#27374D")))
-            .offset(x = 1.dp, y = 20.dp)
-
-    ) {
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(30.dp)
-                .background(color = Color(android.graphics.Color.parseColor("#DDE6ED")))
+   // val fontColor = Color(0xFF526D82)
 
 
-
-        ){
-
-
-            Text(
-                text = "Compressor",
-                color = fontColor,
-                fontFamily = FontFamily.SansSerif,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier
-                    .offset(20.dp,4.dp)
-
-
-            )
-        }
 
         Column(
-            horizontalAlignment = Alignment.End,
+
             modifier = Modifier
-                .padding(30.dp)
-                .offset(3.dp, 150.dp)
+                .background(color = Color(android.graphics.Color.parseColor("#27374D")))
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+
 
 
         ) {
+
+
+            Row(
+                modifier = Modifier
+                    .height(30.dp)
+                    .width(70.dp)
+                    .offset(x=-140.dp,y = -200.dp)
+                    .background(color = Color(android.graphics.Color.parseColor("#DDE6ED")), shape = RoundedCornerShape(25.dp))
+            ) {
+                    Text(
+                        text = "FileCo",
+                        modifier = Modifier
+                            .offset(x=10.dp,y=5.dp),
+                        color = Color(android.graphics.Color.parseColor("#526D82")),
+                        fontWeight = FontWeight.Medium
+
+                    )
+            }
+
+
+
+
+
+
+
+
             // Button One is inside this Container
             Column(
 
@@ -119,7 +122,7 @@ fun HomeUi(navController: NavHostController) {
 
                         )
                     //logo for file compression
-                    Column(
+                    Row(
                         modifier = Modifier
                             .offset(x=27.dp,y= (-16).dp)
                     ) {
@@ -389,4 +392,12 @@ fun HomeUi(navController: NavHostController) {
 
 
 
+
+
+@Preview
+@Composable
+private fun nice() {
+    val navController = rememberNavController()
+    HomeUi(navController)
+    
 }

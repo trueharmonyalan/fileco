@@ -1,8 +1,15 @@
 package com.example.fileco
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,15 +30,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,21 +54,34 @@ fun WindowImageCompression(navController: NavHostController) {
     }
     val buttonStrokeColor = Color(0xFF9DB2BF)
 
+    var selectedImage by remember {
+    mutableStateOf<Uri?>(null)
+    }
+
+    val imagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = {
+            selectedImage = it
+        }
+    )
+
+
+
 
     Box(
 
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color(android.graphics.Color.parseColor("#27374D")))
-            .offset(x = 1.dp, y = 2.dp)
-            .padding(10.dp)
+            .padding(5.dp),
+
 
     ) {
 
 //logo for file compression
         Column(
             modifier = Modifier
-                .offset(x=30.dp,y= (60).dp)
+                .offset(x=30.dp,y= (60).dp),
         ) {
             Column(
                 modifier = Modifier
@@ -103,42 +127,28 @@ fun WindowImageCompression(navController: NavHostController) {
                     .background(
                         color = Color(android.graphics.Color.parseColor("#17273e")),
                         shape = RoundedCornerShape(15.dp)
-                    )
-                    .offset(x = 110.dp, y = 100.dp)
-                    .padding(0.dp)
+                    ),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
 
             ) {
 
                 //Icon inside rounded rectangle
 
 
-                Image(
-                    painter = painterResource(id = R.drawable.add_box_fill0_wght400_grad0_opsz24),
-                    contentDescription = "",
-                    colorFilter = ColorFilter.tint(Color.White),
-                    modifier = Modifier
-                        .size(60.dp)
-                        .padding(0.dp)
 
-
-
+                AsyncImage(
+                    model = selectedImage,
+                    contentDescription = "selected image",
+                    contentScale = ContentScale.FillBounds,
 
                 )
 
-                //inside rounded rectangle text
-
-                Text(
-                    text ="Choose file",
-                    color = Color.White,
-
-                    modifier = Modifier
-                        .offset((-3).dp)
-
-                )
 
 
 
             }
+
         }
 
 
@@ -146,7 +156,7 @@ fun WindowImageCompression(navController: NavHostController) {
         Column(
 
             modifier = Modifier
-                .offset(25.dp, 530.dp)
+                .offset(25.dp, 650.dp)
 
         ) {
             //button design for Button Three
@@ -230,7 +240,7 @@ fun WindowImageCompression(navController: NavHostController) {
         Column(
 
             modifier = Modifier
-                .offset(25.dp, 650.dp)
+                .offset(25.dp, 740.dp)
 
         ) {
 
@@ -261,9 +271,77 @@ fun WindowImageCompression(navController: NavHostController) {
             }
 
         }
+
+        // add image button
+        Column(
+
+            modifier = Modifier
+                .offset(25.dp, 560.dp)
+
+        ) {
+
+            Column(
+                modifier = Modifier
+                    .height(68.dp)
+                    .width(321.dp)
+                    .background(
+                        color = Color(android.graphics.Color.parseColor("#526D82")),
+                        shape = RoundedCornerShape(60.dp)
+                    )
+                    .border(3.dp, color = buttonStrokeColor, shape = RoundedCornerShape(60.dp))
+                    .clickable {
+                        imagePicker.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+
+                    }
+
+
+            ) {
+                Text(
+
+                    text = "Select Image",
+                    fontSize = 25.sp,
+                    color = Color.White,
+                    letterSpacing = (-1).sp,
+                    fontWeight = FontWeight.Medium,
+
+                    modifier = Modifier
+                        .offset(x = 100.dp, y = 16.dp)
+
+                )
+
+                Image(
+                    painter = painterResource(id = R.drawable.add_box_fill0_wght400_grad0_opsz24),
+                    contentDescription = "",
+                    colorFilter = ColorFilter.tint(Color.White),
+                    modifier = Modifier
+                        .size(60.dp)
+                        .padding(0.dp)
+                        .offset(x = 40.dp, y = (-15).dp)
+
+                )
+
+
+            }
+
+        }
     }
 
 
 
 }
 
+@Preview
+@Composable
+private fun WindowFileCompressionPrev() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        val navController = rememberNavController()
+        WindowImageCompression(navController = navController)
+    }
+
+
+}
