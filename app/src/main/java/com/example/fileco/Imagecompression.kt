@@ -1,5 +1,6 @@
 package com.example.fileco
 
+import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -73,7 +74,8 @@ fun WindowImageCompression(navController: NavHostController) {
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color(android.graphics.Color.parseColor("#27374D")))
-            .padding(5.dp),
+            .padding(5.dp)
+            .offset(x=30.dp),
 
 
     ) {
@@ -133,7 +135,7 @@ fun WindowImageCompression(navController: NavHostController) {
 
             ) {
 
-                //Icon inside rounded rectangle
+
 
 
 
@@ -253,6 +255,9 @@ fun WindowImageCompression(navController: NavHostController) {
                         shape = RoundedCornerShape(60.dp)
                     )
                     .border(3.dp, color = buttonStrokeColor, shape = RoundedCornerShape(60.dp))
+                    .clickable {
+
+                    }
 
 
             ) {

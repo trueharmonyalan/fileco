@@ -1,6 +1,7 @@
 package com.example.fileco
 
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -8,6 +9,9 @@ import androidx.navigation.compose.rememberNavController
 @Composable
 fun NavigationForFileCo() {
     val navController = rememberNavController()
+
+    val sharedViewModel: datasharemodel = viewModel()
+
 
     NavHost(
         navController = navController,
@@ -27,13 +31,20 @@ fun NavigationForFileCo() {
         }
 
         composable(route="Video Compressor"){
-            WindowVideoCompression(navController)
+            WindowVideoCompression(navController, sharedViewModel = sharedViewModel)
         }
         composable(route="Image Compressor"){
             WindowImageCompression(navController)
         }
+        composable(route="done"){
+            FinalWindowPage(navController, sharedViewModel = sharedViewModel)
+        }
+
+
 
 
     }
 
 }
+
+
