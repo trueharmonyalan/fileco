@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id ("kotlin-parcelize")
+    id("com.chaquo.python") version "15.0.1" apply true
 }
 
 android {
@@ -19,7 +20,47 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        ndk {
+            // On Apple silicon, you can omit x86_64.
+            abiFilters += listOf("arm64-v8a", "x86_64")
+        }
+
     }
+
+
+    chaquopy {
+        defaultConfig {
+            version = "3.8"
+
+
+            pip {
+                // A requirement specifier, with or without a version number:
+                install("numpy")
+                install("Pillow")
+                install("PyPDF2")
+                install("pypdf")
+
+
+                // A directory containing a setup.py, relative to the project
+                // directory (must contain at least one slash):
+
+
+                // "-r"` followed by a requirements filename, relative to the
+                // project directory:
+
+            }
+
+        }
+
+        sourceSets {
+            getByName("main") {
+                srcDir("src/main/python")
+            }
+        }
+    }
+
+
 
     buildTypes {
         release {
@@ -66,6 +107,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.camera.video)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -79,7 +121,7 @@ dependencies {
     implementation("io.coil-kt:coil-video:2.6.0")
     implementation ("com.arthenica:ffmpeg-kit-full:6.0-2")
     implementation ("com.tom-roush:pdfbox-android:2.0.27.0")
-    implementation ("id.zelory:compressor:3.0.1")
+  implementation ("id.zelory:compressor:3.0.1")
 
 
 }

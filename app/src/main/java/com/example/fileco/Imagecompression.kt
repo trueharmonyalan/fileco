@@ -6,6 +6,7 @@ import android.database.Cursor
 import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.MediaStore
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContract
@@ -49,16 +50,14 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
-import id.zelory.compressor.Compressor
-import id.zelory.compressor.Compressor.compress
-import id.zelory.compressor.constraint.format
-import id.zelory.compressor.constraint.quality
+import com.chaquo.python.Python
+
 import java.io.File
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
- fun WindowImageCompression(navController: NavHostController) {
+ fun WindowImageCompression(navController: NavHostController,sharedViewModel :datasharemodel) {
     val context = LocalContext.current
     var qualityReader by remember {
         mutableStateOf("")
@@ -72,6 +71,11 @@ import java.io.File
     var selectedImagepath by remember {
         mutableStateOf<String?>(null)
     }
+
+    var compressedImage by remember {
+        mutableStateOf<File?>(null)
+    }
+    val isClicked = remember { mutableStateOf(false) }
 
 
 
@@ -107,7 +111,7 @@ import java.io.File
             val imagePath = selectedUri?.let { getRealPathFromImageURI(context, it) }
             selectedImage = selectedUri
             selectedImagepath = imagePath
-            println("hti${selectedImagepath}")
+            println("when selected${selectedImagepath}")
         }
     )
 
@@ -304,6 +308,22 @@ import java.io.File
                     )
                     .border(3.dp, color = buttonStrokeColor, shape = RoundedCornerShape(60.dp))
                     .clickable {
+                        isClicked.value = !isClicked.value
+                        val image = selectedImagepath
+                        if (image != null && qualityReader.isNotEmpty()) {
+                            val python = Python.getInstance()
+                            val pyModule = python.getModule("imageCompressor")
+                            println("before sharing to pycompressor${selectedImagepath}")
+                            val pyFunction = pyModule.callAttr("imagecompressor",selectedImagepath,qualityReader )
+                            val pythonFilePath: String = pyFunction.toString()
+                            val kotlinFile = File(pythonFilePath)
+                            compressedImage = kotlinFile
+
+                            sharedViewModel.receivePdfOut(PdfFile = compressedImage)
+                            navController.navigate("doneImage")
+                        } else {
+                            Toast.makeText(context, "Select image first", Toast.LENGTH_SHORT).show()
+                        }
 
 
 
@@ -388,16 +408,3 @@ import java.io.File
 
 }
 
-@Preview
-@Composable
-private fun WindowFileCompressionPrev() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        val navController = rememberNavController()
-        WindowImageCompression(navController = navController)
-    }
-
-
-}

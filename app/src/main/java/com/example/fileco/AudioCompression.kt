@@ -1,8 +1,10 @@
 package com.example.fileco
 
 import android.content.ContentValues.TAG
+import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -83,7 +85,6 @@ fun WindowAudioCompression(
     }
 
     val isClicked = remember { mutableStateOf(false) }
-
 
 
     val AudioPicker = rememberLauncherForActivityResult(
@@ -415,7 +416,8 @@ fun WindowAudioCompression(
                     )
                     .border(3.dp, color = buttonStrokeColor, shape = RoundedCornerShape(60.dp))
                     .clickable {
-                        AudioPicker.launch("audio/mpeg")
+
+                    AudioPicker.launch("audio/mpeg")
 
                     }
 

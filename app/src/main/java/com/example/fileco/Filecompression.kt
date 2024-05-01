@@ -1,28 +1,16 @@
 package com.example.fileco
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.content.ActivityNotFoundException
-import android.content.ContentResolver
-import android.content.ContentUris
-import android.content.Context
-import android.content.Intent
-import android.database.Cursor
 import android.net.Uri
 import android.os.Build
-import android.provider.MediaStore
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,7 +23,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -46,38 +33,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.ActivityCompat.startActivityForResult
-import androidx.core.app.ActivityOptionsCompat
-import androidx.core.content.ContextCompat.startActivity
-import androidx.core.content.FileProvider
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import coil.compose.AsyncImage
-import com.tom_roush.pdfbox.BuildConfig
-import com.tom_roush.pdfbox.pdmodel.PDDocument
-import com.tom_roush.pdfbox.pdmodel.graphics.image.PDImageXObject
-import java.io.ByteArrayOutputStream
+import com.chaquo.python.Python
 import java.io.File
-import java.io.IOException
-import java.io.InputStream
-import java.net.URI
+import java.io.FileOutputStream
 
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WindowFileCompression(navController: NavHostController) {
+fun WindowFileCompression(navController: NavHostController, sharedViewModel :datasharemodel) {
 
 
     var qualityReader by remember {
@@ -93,6 +66,13 @@ fun WindowFileCompression(navController: NavHostController) {
     var selecteddocpath by remember {
         mutableStateOf<String?>(null)
     }
+    var compressedDoc by remember {
+        mutableStateOf<File?>(null)
+    }
+
+
+
+
 
 
 
@@ -103,7 +83,18 @@ fun WindowFileCompression(navController: NavHostController) {
         contract = ActivityResultContracts.OpenDocument(),
         onResult = {selectedUri ->
             seletedDoc = selectedUri
+            val inputStream = selectedUri?.let { context.contentResolver.openInputStream(it) }
+            val tempFile = File(context.cacheDir, "doc.pdf")
 
+            inputStream?.use { inputStream ->
+                val outputStream = FileOutputStream(tempFile)
+                inputStream.copyTo(outputStream)
+                outputStream.flush()
+                outputStream.close()
+            }
+
+            val tempFilePath = tempFile.absolutePath
+            selecteddocpath = tempFilePath
 
         }
     )
@@ -180,7 +171,10 @@ fun WindowFileCompression(navController: NavHostController) {
                 //Icon inside rounded rectangle
 
 
-                Text(text = "$seletedDoc")
+                Text(
+                    color = Color.White,
+                    text = "Selected File:$seletedDoc"
+                )
 
 
 
@@ -228,10 +222,11 @@ fun WindowFileCompression(navController: NavHostController) {
                     TextField(
                         value = qualityReader,
                         leadingIcon = {
-                            Icon(painter = painterResource(id = R.drawable.clarify_fill0_wght400_grad0_opsz24),
-                                        contentDescription ="quality icon",
+                            Icon(
+                                painter = painterResource(id = R.drawable.clarify_fill0_wght400_grad0_opsz24),
+                                contentDescription = "quality icon",
 
-                            )
+                                )
                         },
                         modifier = Modifier
                             .width(100.dp)
@@ -276,6 +271,14 @@ fun WindowFileCompression(navController: NavHostController) {
             }
 
         }
+//        val outputDir = File(context.cacheDir, "Processed_pdfs")
+//        if (!outputDir.exists()) {
+//            outputDir.mkdirs()
+//        }
+//        val randomInt = Random.nextInt(1000)
+//        var outputFileName = "output${randomInt}.mp3"
+//        val outputFilePath = File(outputDir, outputFileName).absolutePath
+//        val outputFileAudio = File(outputDir, outputFileName)
 
 
         // Done Button
@@ -296,6 +299,17 @@ fun WindowFileCompression(navController: NavHostController) {
                         shape = RoundedCornerShape(60.dp)
                     )
                     .border(3.dp, color = buttonStrokeColor, shape = RoundedCornerShape(60.dp))
+                    .clickable {
+                        val python = Python.getInstance()
+                        val pyModule = python.getModule("pdfCompressor")
+                        val pyFunction = pyModule.callAttr("pdfCompress",selecteddocpath )
+                        val pythonFilePath: String = pyFunction.toString()
+                        val kotlinFile = File(pythonFilePath)
+                        compressedDoc = kotlinFile
+
+                        sharedViewModel.receivePdfOut(PdfFile = compressedDoc)
+                        navController.navigate("donepdf")
+                    }
 
 
 
@@ -336,10 +350,6 @@ fun WindowFileCompression(navController: NavHostController) {
                     .clickable {
 
                         FilePicker.launch(arrayOf("application/pdf"))
-
-
-
-
 
 
                     }
