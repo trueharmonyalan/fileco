@@ -18,4 +18,13 @@ class datasharemodel: ViewModel() {
         finalVideoOutput = videoToEnd
     }
 
+
+    var finalAudioOutput by mutableStateOf<File?>(null)
+        private set
+
+    fun receiveAudio(AudioFile: File){
+        finalAudioOutput = AudioFile
+        println("receivved vide:$AudioFile")
+    }
+
 }

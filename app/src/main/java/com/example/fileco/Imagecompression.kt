@@ -1,7 +1,11 @@
 package com.example.fileco
 
+import android.content.Context
 import android.content.Intent
+import android.database.Cursor
+import android.graphics.Bitmap
 import android.net.Uri
+import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContract
@@ -36,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -44,12 +49,17 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
+import id.zelory.compressor.Compressor
+import id.zelory.compressor.Compressor.compress
+import id.zelory.compressor.constraint.format
+import id.zelory.compressor.constraint.quality
+import java.io.File
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WindowImageCompression(navController: NavHostController) {
-
+ fun WindowImageCompression(navController: NavHostController) {
+    val context = LocalContext.current
     var qualityReader by remember {
         mutableStateOf("")
     }
@@ -59,12 +69,50 @@ fun WindowImageCompression(navController: NavHostController) {
     mutableStateOf<Uri?>(null)
     }
 
+    var selectedImagepath by remember {
+        mutableStateOf<String?>(null)
+    }
+
+
+
+    fun getRealPathFromImageURI(context: Context, contentUri: Uri): String? {
+        var cursor: Cursor? = null
+        return try {
+            val projection = arrayOf(MediaStore.MediaColumns.DATA)
+            cursor = context.contentResolver.query(contentUri, projection, null, null, null)
+            if (cursor != null && cursor.moveToFirst()) {
+                val columnIndex = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)
+                cursor.getString(columnIndex)
+            } else {
+                null
+            }
+        } finally {
+            cursor?.close()
+        }
+    }
+
+    val directory = File(context.filesDir, "Images")
+    if (!directory.exists()) {
+        directory.mkdirs()
+    }
+    val outputFileName = "Image${System.currentTimeMillis()}.PNG"
+    val processedFile = File(directory, outputFileName)
+
+
+
+
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = {
-            selectedImage = it
+        onResult = {selectedUri ->
+            val imagePath = selectedUri?.let { getRealPathFromImageURI(context, it) }
+            selectedImage = selectedUri
+            selectedImagepath = imagePath
+            println("hti${selectedImagepath}")
         }
     )
+
+
+
 
 
 
@@ -256,6 +304,9 @@ fun WindowImageCompression(navController: NavHostController) {
                     )
                     .border(3.dp, color = buttonStrokeColor, shape = RoundedCornerShape(60.dp))
                     .clickable {
+
+
+
 
                     }
 

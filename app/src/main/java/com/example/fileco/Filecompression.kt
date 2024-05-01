@@ -2,10 +2,20 @@ package com.example.fileco
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ActivityNotFoundException
+import android.content.ContentResolver
+import android.content.ContentUris
+import android.content.Context
+import android.content.Intent
+import android.database.Cursor
 import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -40,40 +50,63 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat.startActivityForResult
+import androidx.core.app.ActivityOptionsCompat
+import androidx.core.content.ContextCompat.startActivity
+import androidx.core.content.FileProvider
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
+import com.tom_roush.pdfbox.BuildConfig
+import com.tom_roush.pdfbox.pdmodel.PDDocument
+import com.tom_roush.pdfbox.pdmodel.graphics.image.PDImageXObject
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.IOException
+import java.io.InputStream
+import java.net.URI
 
 
-
+@RequiresApi(Build.VERSION_CODES.Q)
 @SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WindowFileCompression(navController: NavHostController) {
 
+
     var qualityReader by remember {
         mutableStateOf("")
     }
 
+    val context = LocalContext.current
     val buttonStrokeColor = Color(0xFF9DB2BF)
 
     var seletedDoc by remember {
         mutableStateOf<Uri?>(null)
     }
+    var selecteddocpath by remember {
+        mutableStateOf<String?>(null)
+    }
 
-    val imagePicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent(),
-        onResult = {
-            seletedDoc = it
+
+
+
+
+
+ val FilePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+        onResult = {selectedUri ->
+            seletedDoc = selectedUri
+
+
         }
     )
-
-
 
 
 
@@ -265,6 +298,7 @@ fun WindowFileCompression(navController: NavHostController) {
                     .border(3.dp, color = buttonStrokeColor, shape = RoundedCornerShape(60.dp))
 
 
+
             ) {
                 Text(
 
@@ -300,6 +334,12 @@ fun WindowFileCompression(navController: NavHostController) {
                     )
                     .border(3.dp, color = buttonStrokeColor, shape = RoundedCornerShape(60.dp))
                     .clickable {
+
+                        FilePicker.launch(arrayOf("application/pdf"))
+
+
+
+
 
 
                     }
@@ -341,16 +381,5 @@ fun WindowFileCompression(navController: NavHostController) {
 }
 
 
-@Preview
-@Composable
-private fun WindowFileCompressionPrev() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        val navController = rememberNavController()
-        WindowFileCompression(navController = navController)
-    }
 
 
-}

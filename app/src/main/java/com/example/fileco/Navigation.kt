@@ -27,7 +27,7 @@ fun NavigationForFileCo() {
         }
 
         composable(route="Audio Compressor"){
-            WindowAudioCompression(navController)
+            WindowAudioCompression(navController,sharedViewModel = sharedViewModel)
         }
 
         composable(route="Video Compressor"){
@@ -39,6 +39,11 @@ fun NavigationForFileCo() {
         composable(route="done"){
             FinalWindowPage(navController, sharedViewModel = sharedViewModel)
         }
+
+        composable(route="doneAudio"){
+            AudioFinalWindow(navController, sharedViewModel = sharedViewModel)
+        }
+
 
 
 

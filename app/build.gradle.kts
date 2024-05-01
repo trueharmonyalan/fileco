@@ -78,4 +78,8 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.6.0")
     implementation("io.coil-kt:coil-video:2.6.0")
     implementation ("com.arthenica:ffmpeg-kit-full:6.0-2")
+    implementation ("com.tom-roush:pdfbox-android:2.0.27.0")
+    implementation ("id.zelory:compressor:3.0.1")
+
+
 }

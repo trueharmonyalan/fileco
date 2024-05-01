@@ -1,16 +1,10 @@
 package com.example.fileco
 
-import android.app.Activity
 import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
-import android.os.Environment
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -27,10 +21,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,81 +29,50 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.ActivityCompat
-import androidx.core.app.ActivityCompat.startActivityForResult
-import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavHostController
 import java.io.File
-import android.Manifest
 import java.io.IOException
 
-
-const val SAVE_REQUEST_CODE = 1001 // Define a request code for saving the file
-private const val REQUEST_SAVE_VIDEO = 123
-
 @Composable
-fun FinalWindowPage(navController: NavHostController,sharedViewModel: datasharemodel) {
-val context = LocalContext.current
-    val VideoComes = sharedViewModel.finalVideoOutput
-    val fileName = VideoComes?.name
-    val fileSize = VideoComes?.length()
+fun AudioFinalWindow(navController: NavHostController, sharedViewModel: datasharemodel) {
+    val context = LocalContext.current
+    val AudioComes = sharedViewModel.finalAudioOutput
+    val audioName = AudioComes?.name
+    val audioSize = AudioComes?.length()
+    println(audioName)
 
 
 
-
-     fun formatFileSize(size: Long): String {
-        if (size <= 0) return "0 MB"
-        val fileSizeInMB = size.toDouble() / (1024 * 1024)
-        return String.format("%.2f MB", fileSizeInMB)
-    }
-    val sizeOffile = fileSize?.let { formatFileSize(it) }
-
-
-
-
-    fun saveVideoToUri(context: Context, videoFile: File, uri: Uri) {
+    fun saveAudioToUri(context: Context, audioFile: File, uri: Uri) {
         try {
             context.contentResolver.openOutputStream(uri)?.use { output ->
-                videoFile.inputStream().use { input ->
+                audioFile.inputStream().use { input ->
                     input.copyTo(output)
                 }
             }
-            Toast.makeText(context, "Video saved successfully", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Compressed Audio saved successfully", Toast.LENGTH_SHORT).show()
         } catch (e: IOException) {
-            Toast.makeText(context, "Error saving video: ${e.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Error saving Audio: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
-
-    val saveFileLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.CreateDocument("video/mp4"),
+    val saveAudioLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("audio/mpeg"),
         onResult = { uri ->
             if (uri != null) {
                 // Save the video file to the selected location
-                saveVideoToUri(context, VideoComes!!, uri)
+                saveAudioToUri(context, AudioComes!!, uri)
             }
         }
     )
 
-    fun saveFile() {
+    fun saveAudio() {
         // Get the Uri of the compressed video file
-        val uri = VideoComes?.let { Uri.fromFile(it) }
+        val uri = AudioComes?.let { Uri.fromFile(it) }
 
         // Create an intent to save the file
-        saveFileLauncher.launch(fileName)
+        saveAudioLauncher.launch(audioName)
     }
-
-
-
-
-
-
-
-
-
-
-
 
     Box(
 
@@ -162,7 +121,7 @@ val context = LocalContext.current
             modifier = Modifier
 
 
-                .offset((-10.dp), 200.dp)
+                .offset(((-10).dp), 200.dp)
                 .padding(0.dp)
         ) {
 
@@ -180,63 +139,61 @@ val context = LocalContext.current
                 horizontalAlignment = Alignment.CenterHorizontally
 
             ) {
-                    Text(
-                        text = "Compressed Video:${fileName}",
-                        color = Color.White,
+                Text(
+                    text = "Compressed Video:${audioName}",
+                    color = androidx.compose.ui.graphics.Color.White,
 
-                        )
-                    Text(
-                        text = "Compressed Video Size:${sizeOffile}",
-                        color = Color.White,
                     )
+                Text(
+                    text = "Compressed Video Size:${audioSize}",
+                    color = androidx.compose.ui.graphics.Color.White,
+                )
 
 
 
             }
-                }
+        }
 
 
     }
 
+    Column(
+        modifier = Modifier
+            .offset(x=25.dp,y=520.dp)
+
+    ) {
         Column(
             modifier = Modifier
-                .offset(x=25.dp,y=520.dp)
+                .height(68.dp)
+                .width(321.dp)
+                .background(
+                    color = Color(android.graphics.Color.parseColor("#526D82")),
+                    shape = RoundedCornerShape(60.dp)
+                )
+                .border(3.dp, color = buttonStrokeColor, shape = RoundedCornerShape(60.dp))
+                .clickable {
+
+                    saveAudio()
+                }
+
 
         ) {
-            Column(
+            Text(
+                text = "Save",
+                fontSize = 25.sp,
+                color = androidx.compose.ui.graphics.Color.White,
+                letterSpacing = (-1).sp,
+                fontWeight = FontWeight.Medium,
+
                 modifier = Modifier
-                    .height(68.dp)
-                    .width(321.dp)
-                    .background(
-                        color = Color(android.graphics.Color.parseColor("#526D82")),
-                        shape = RoundedCornerShape(60.dp)
-                    )
-                    .border(3.dp, color = buttonStrokeColor, shape = RoundedCornerShape(60.dp))
-                    .clickable {
+                    .offset(x = 20.dp, y = 16.dp)
 
-                        saveFile()
-                    }
-
-
-            ) {
-                Text(
-                    text = "Save",
-                    fontSize = 25.sp,
-                    color = Color.White,
-                    letterSpacing = (-1).sp,
-                    fontWeight = FontWeight.Medium,
-
-                    modifier = Modifier
-                        .offset(x = 20.dp, y = 16.dp)
-
-                )
-            }
+            )
         }
+    }
 
 
 
 
 
 }
-
-

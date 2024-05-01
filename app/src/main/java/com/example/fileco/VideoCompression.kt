@@ -79,7 +79,7 @@ fun WindowVideoCompression(navController: NavHostController, sharedViewModel: da
     var isCompressing by remember { mutableStateOf(false) }
 
 
-    fun getRealPathFromAudioURI(context: Context, contentUri: Uri): String? {
+    fun getRealPathFromVideoURI(context: Context, contentUri: Uri): String? {
         var cursor: Cursor? = null
         return try {
             val projection = arrayOf(MediaStore.MediaColumns.DATA)
@@ -140,7 +140,7 @@ fun WindowVideoCompression(navController: NavHostController, sharedViewModel: da
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = {selectedUri ->
 
-            val videoPath = selectedUri?.let { getRealPathFromAudioURI(context, it) }
+            val videoPath = selectedUri?.let { getRealPathFromVideoURI(context, it) }
             selectedVideo = selectedUri
             selectedvideopath = videoPath
 
