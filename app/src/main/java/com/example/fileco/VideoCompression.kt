@@ -6,6 +6,7 @@ import android.database.Cursor
 import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -320,6 +321,8 @@ fun WindowVideoCompression(navController: NavHostController, sharedViewModel: da
                             Compressedvideo = processedFile
                             sharedViewModel.receiveVideo(videoToEnd = processedFile.absoluteFile)
                             navController.navigate("done")
+                        }else{
+                            Toast.makeText( context, "Select video first", Toast.LENGTH_SHORT).show()
                         }
 
 

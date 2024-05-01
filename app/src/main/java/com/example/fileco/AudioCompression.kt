@@ -86,38 +86,6 @@ fun WindowAudioCompression(
 
 
 
-
-
-
-
-
-
-//    val directory = File(context.filesDir, "Audios")
-//
-//    // Get the list of existing files in the directory
-//    val existingFiles = directory.listFiles { file -> file.isFile }?.toList() ?: emptyList()
-//
-//// Find the highest number suffix used in existing files
-//    val maxSuffix = existingFiles
-//        .mapNotNull { file ->
-//            val fileName = file.name
-//            val fileNameWithoutExtension = fileName.substringBeforeLast(".")
-//            val suffix = fileNameWithoutExtension.substringAfterLast("_").toIntOrNull()
-//            suffix
-//        }
-//        .maxOrNull() ?: 0
-//
-//// Construct the output file name with a suffix
-//    val baseFileName_ = "processed_audios"
-//    val outputFileName = "$baseFileName_${maxSuffix + 9}.mp4"
-//
-//    val processedFile = File(directory, outputFileName)
-
-
-
-
-
-
     val AudioPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { selectedUri ->
@@ -226,11 +194,6 @@ fun WindowAudioCompression(
 
 
 
-
-
-
-
-
             }
         }
 
@@ -266,8 +229,16 @@ fun WindowAudioCompression(
                         .border(3.dp, color = buttonStrokeColor, shape = RoundedCornerShape(60.dp)),
 
                     onClick = {
-                        qualityReader = "128k"
-                        Toast.makeText(context, "Quality is set to 128k", Toast.LENGTH_SHORT).show()
+                        if(isClicked.value) {
+                            qualityReader = "128k"
+                            Toast.makeText(
+                                context,
+                                "Quality is set to 128k",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }else{
+                            Toast.makeText( context, "Select audio first",Toast.LENGTH_SHORT).show()
+                        }
 
 
                     }
@@ -289,9 +260,16 @@ fun WindowAudioCompression(
 
 
                         onClick = {
-                            qualityReader = "224k"
-                            Toast.makeText(context, "Quality is set to 224k", Toast.LENGTH_SHORT).show()
-
+                            if(isClicked.value) {
+                                qualityReader = "224k"
+                                Toast.makeText(
+                                    context,
+                                    "Quality is set to 224k",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }else{
+                                Toast.makeText( context, "Select audio first",Toast.LENGTH_SHORT).show()
+                            }
 
                         }
                     )
@@ -311,8 +289,16 @@ fun WindowAudioCompression(
                             ),
 
                         onClick = {
-                            qualityReader = "320k"
-                            Toast.makeText(context, "Quality is set to 320k", Toast.LENGTH_SHORT).show()
+                            if(isClicked.value) {
+                                qualityReader = "320k"
+                                Toast.makeText(
+                                    context,
+                                    "Quality is set to 320k",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }else{
+                                Toast.makeText( context, "Select audio first",Toast.LENGTH_SHORT).show()
+                            }
                         }
                     )
                     {
@@ -331,8 +317,6 @@ fun WindowAudioCompression(
             var outputFileName = "output${randomInt}.mp3"
             val outputFilePath = File(outputDir, outputFileName).absolutePath
             val outputFileAudio = File(outputDir, outputFileName)
-
-
 
 
 
@@ -389,6 +373,8 @@ fun WindowAudioCompression(
                             navController.navigate("doneAudio")
 
 
+                        }else {
+                            Toast.makeText(context, "Select audio first", Toast.LENGTH_SHORT).show()
                         }
 
 
