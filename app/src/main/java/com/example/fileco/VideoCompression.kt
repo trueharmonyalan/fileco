@@ -5,6 +5,7 @@ import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import android.provider.MediaStore
+import android.provider.OpenableColumns
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -31,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -77,7 +79,52 @@ fun WindowVideoCompression(navController: NavHostController, sharedViewModel: da
     var Compressedvideo by remember {
         mutableStateOf<File?>(null)
     }
-    var isCompressing by remember { mutableStateOf(false) }
+    val isVideoSelected = remember { derivedStateOf { selectedVideo != null && selectedvideopath != null } }
+
+    var selectedVideoName by remember {
+        mutableStateOf<String?>(null)
+    }
+    var selectedVideoSize by remember {
+        mutableStateOf<String?>(null)
+    }
+    fun getFileNameFromUri(uri: Uri?, context: Context): String? {
+        uri?.let {
+            val cursor = context.contentResolver.query(it, null, null, null, null)
+            cursor?.moveToFirst()
+            val nameIndex = cursor?.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            val fileName = nameIndex?.let { index ->
+                cursor.getString(index)
+            }
+            cursor?.close()
+            return fileName
+        }
+        return null
+    }
+
+    fun getFileSizeFromUri(uri: Uri?, context: Context): Long {
+        uri?.let {
+            val cursor = context.contentResolver.query(it, null, null, null, null)
+            cursor?.moveToFirst()
+            val sizeIndex = cursor?.getColumnIndex(OpenableColumns.SIZE)
+
+            val fileSize = sizeIndex?.let { index ->
+                cursor.getLong(index)
+
+            } ?: 0L
+            cursor?.close()
+            return fileSize
+        }
+
+        return 0L
+    }
+
+    fun formatFileSize(size: Long): String {
+        if (size <= 0) return "0 MB"
+        val fileSizeInMB = size.toDouble() / (1024 * 1024)
+        return String.format("%.2f MB", fileSizeInMB)
+    }
+
+    val sizeOffile = selectedVideoSize?.toLong()?.let { formatFileSize(it) }
 
 
     fun getRealPathFromVideoURI(context: Context, contentUri: Uri): String? {
@@ -144,6 +191,10 @@ fun WindowVideoCompression(navController: NavHostController, sharedViewModel: da
             val videoPath = selectedUri?.let { getRealPathFromVideoURI(context, it) }
             selectedVideo = selectedUri
             selectedvideopath = videoPath
+            val videoName = getFileNameFromUri(selectedUri, context)
+            selectedVideoName = videoName
+            val videoSize = getFileSizeFromUri(selectedUri, context)
+            selectedVideoSize = videoSize.toString()
 
 
 
@@ -217,6 +268,14 @@ fun WindowVideoCompression(navController: NavHostController, sharedViewModel: da
                 horizontalAlignment = Alignment.CenterHorizontally
 
             ) {
+                if (sizeOffile != null) {
+                    Text(
+                        text = "Size: $sizeOffile",
+                        color = Color.White
+                    )
+                }
+
+
 
                 val model = ImageRequest.Builder(LocalContext.current)
                     .data(selectedVideo)
@@ -233,8 +292,9 @@ fun WindowVideoCompression(navController: NavHostController, sharedViewModel: da
                 AsyncImage(
                     model = model,
                     contentDescription = "video thumbnail",
-                    contentScale = ContentScale.FillBounds
+                    contentScale = ContentScale.Crop
                 )
+
 
 
 
@@ -277,54 +337,29 @@ fun WindowVideoCompression(navController: NavHostController, sharedViewModel: da
         ) {
             //button design for Button Three
             Column(
+
                 modifier = Modifier
                     .height(68.dp)
                     .width(321.dp)
+
                     .background(
                         color = Color(android.graphics.Color.parseColor("#526D82")),
                         shape = RoundedCornerShape(60.dp)
                     )
                     .border(3.dp, color = buttonStrokeColor, shape = RoundedCornerShape(60.dp))
                     .clickable {
-//                        val media = selectedvideopath
-//                        println(media)
-//                        val command = "-i $media -c:v mpeg4 -q:v $qualityReader ${processedFile.absolutePath}"
-//
-//                        val session = FFmpegKit.execute(command)
-//
-//
-//                        if (ReturnCode.isSuccess(session.returnCode)) {
-//
-//                            // SUCCESS
-//                        } else if (ReturnCode.isCancel(session.returnCode)) {
-//
-//                            // CANCEL
-//                        } else {
-//
-//                            // FAILURE
-//                            Log.d(
-//                                TAG,
-//                                String.format(
-//                                    "Command failed with state %s and rc %s.%s",
-//                                    session.state,
-//                                    session.returnCode,
-//                                    session.failStackTrace
-//                                )
-//                            )
-//                        }
-//                        Compressedvideo = processedFile
-//                        sharedViewModel.receiveVideo(videoToEnd = processedFile.absoluteFile)
-//                       navController.navigate("done",)
+
                         val media = selectedvideopath
                         if (media != null && qualityReader.isNotEmpty()) {
                             compressVideo(media, qualityReader.toInt(), processedFile)
                             Compressedvideo = processedFile
                             sharedViewModel.receiveVideo(videoToEnd = processedFile.absoluteFile)
                             navController.navigate("done")
-                        }else{
-                            Toast.makeText( context, "Select video first", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast
+                                .makeText(context, "Select video first", Toast.LENGTH_SHORT)
+                                .show()
                         }
-
 
 
                     }
@@ -383,6 +418,7 @@ fun WindowVideoCompression(navController: NavHostController, sharedViewModel: da
 
 
                     TextField(
+                        enabled = isVideoSelected.value,
                         value = qualityReader,
                         leadingIcon = {
                             Icon(

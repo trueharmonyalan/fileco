@@ -1,8 +1,10 @@
 package com.example.fileco
 
 import android.content.ContentValues.TAG
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.provider.OpenableColumns
 import android.util.Log
 import android.webkit.MimeTypeMap
 import android.widget.Toast
@@ -31,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,7 +68,7 @@ fun WindowAudioCompression(
 
     val context = LocalContext.current
 
-    var qualityReader by remember {
+    var selectedQuality by remember {
         mutableStateOf("")
     }
     val buttonStrokeColor = Color(0xFF9DB2BF)
@@ -73,6 +76,9 @@ fun WindowAudioCompression(
     var selectedAudio by remember {
         mutableStateOf<Uri?>(null)
     }
+
+
+
 
 
 
@@ -85,6 +91,57 @@ fun WindowAudioCompression(
     }
 
     val isClicked = remember { mutableStateOf(false) }
+
+    val isAudioSelected = remember { derivedStateOf { selectedAudio != null && selectAudioDetails != null } }
+
+    var selectedAudioName by remember {
+        mutableStateOf<String?>(null)
+    }
+    var selectedAudioSize by remember {
+        mutableStateOf<String?>(null)
+    }
+    fun getFileNameFromUri(uri: Uri?, context: Context): String? {
+        uri?.let {
+            val cursor = context.contentResolver.query(it, null, null, null, null)
+            cursor?.moveToFirst()
+            val nameIndex = cursor?.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            val fileName = nameIndex?.let { index ->
+                cursor.getString(index)
+            }
+            cursor?.close()
+            return fileName
+        }
+        return null
+    }
+
+    fun getFileSizeFromUri(uri: Uri?, context: Context): Long {
+        uri?.let {
+            val cursor = context.contentResolver.query(it, null, null, null, null)
+            cursor?.moveToFirst()
+            val sizeIndex = cursor?.getColumnIndex(OpenableColumns.SIZE)
+
+            val fileSize = sizeIndex?.let { index ->
+                cursor.getLong(index)
+
+            } ?: 0L
+            cursor?.close()
+            return fileSize
+        }
+
+        return 0L
+    }
+
+    fun formatFileSize(size: Long): String {
+        if (size <= 0) return "0 MB"
+        val fileSizeInMB = size.toDouble() / (1024 * 1024)
+        return String.format("%.2f MB", fileSizeInMB)
+    }
+
+    val sizeOffile = selectedAudioSize?.toLong()?.let { formatFileSize(it) }
+
+
+
+
 
 
     val AudioPicker = rememberLauncherForActivityResult(
@@ -107,6 +164,11 @@ fun WindowAudioCompression(
             val tempFilePath = tempFile.absolutePath
             println(tempFilePath)
             selectAudioDetails = tempFilePath
+            val AudioName = getFileNameFromUri(selectedUri, context)
+            selectedAudioName = AudioName
+            val AudioSize = getFileSizeFromUri(selectedUri, context)
+            selectedAudioSize = AudioSize.toString()
+
 
 
 
@@ -187,7 +249,7 @@ fun WindowAudioCompression(
                 //Icon inside rounded rectangle
 
                 Text(
-                    text = "Selected Audio: ${selectedAudio}",
+                    text = "Audio name: ${selectedAudioName}\n Audio size: ${sizeOffile}",
                     color = Color.White,
 
                 )
@@ -219,97 +281,60 @@ fun WindowAudioCompression(
 
 
             ) {
-                Row {
-
-
-                Button(
-                    colors = ButtonDefaults.buttonColors(Color(android.graphics.Color.parseColor("#17273e"))),
-                    shape = RoundedCornerShape(30.dp),
+                Row(
                     modifier = Modifier
-                        .offset(20.dp, 10.dp)
-                        .border(3.dp, color = buttonStrokeColor, shape = RoundedCornerShape(60.dp)),
-
-                    onClick = {
-                        if(isClicked.value) {
-                            qualityReader = "128k"
-                            Toast.makeText(
-                                context,
-                                "Quality is set to 128k",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }else{
-                            Toast.makeText( context, "Select audio first",Toast.LENGTH_SHORT).show()
-                        }
+                        .offset(40.dp,10.dp)
+                ) {
 
 
-                    }
-                )
-                {
-                    Text(text = "128k")
-
-                }
                     Button(
+                        enabled = isAudioSelected.value,
                         colors = ButtonDefaults.buttonColors(Color(android.graphics.Color.parseColor("#17273e"))),
                         shape = RoundedCornerShape(30.dp),
                         modifier = Modifier
-                            .offset(35.dp, 10.dp)
-                            .border(
-                                3.dp,
-                                color = buttonStrokeColor,
-                                shape = RoundedCornerShape(60.dp)
-                            ),
-
-
+                            .offset((-10).dp)
+                            .border(3.dp, color = buttonStrokeColor, shape = RoundedCornerShape(60.dp)),
                         onClick = {
-                            if(isClicked.value) {
-                                qualityReader = "224k"
-                                Toast.makeText(
-                                    context,
-                                    "Quality is set to 224k",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }else{
-                                Toast.makeText( context, "Select audio first",Toast.LENGTH_SHORT).show()
-                            }
-
+                            selectedQuality = "128k"
+                            Toast.makeText(context, "Quality set to 128k ", Toast.LENGTH_SHORT).show()
                         }
-                    )
-                    {
+                    ) {
+                        Text(text = "128k")
+                    }
+
+                    Button(
+                        enabled = isAudioSelected.value,
+                        colors = ButtonDefaults.buttonColors(Color(android.graphics.Color.parseColor("#17273e"))),
+                        shape = RoundedCornerShape(30.dp),
+                        modifier = Modifier
+                            .border(3.dp, color = buttonStrokeColor, shape = RoundedCornerShape(60.dp)),
+                        onClick = {
+                            selectedQuality = "224k"
+                            Toast.makeText(context, "Quality set to 224k ", Toast.LENGTH_SHORT).show()
+                        }
+                    ) {
                         Text(text = "224k")
-
                     }
+
                     Button(
+                        enabled = isAudioSelected.value,
                         colors = ButtonDefaults.buttonColors(Color(android.graphics.Color.parseColor("#17273e"))),
                         shape = RoundedCornerShape(30.dp),
                         modifier = Modifier
-                            .offset(50.dp, 10.dp)
-                            .border(
-                                3.dp,
-                                color = buttonStrokeColor,
-                                shape = RoundedCornerShape(60.dp)
-                            ),
-
+                            .offset((10).dp)
+                            .border(3.dp, color = buttonStrokeColor, shape = RoundedCornerShape(60.dp)),
                         onClick = {
-                            if(isClicked.value) {
-                                qualityReader = "320k"
-                                Toast.makeText(
-                                    context,
-                                    "Quality is set to 320k",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }else{
-                                Toast.makeText( context, "Select audio first",Toast.LENGTH_SHORT).show()
-                            }
+                            selectedQuality = "320k"
+                            Toast.makeText(context, "Quality set to 320k ", Toast.LENGTH_SHORT).show()
                         }
-                    )
-                    {
+                    ) {
                         Text(text = "320k")
-
                     }
             }
             }
 
         }
+        println(selectedQuality)
         val outputDir = File(context.cacheDir, "processed_audio")
         if (!outputDir.exists()) {
             outputDir.mkdirs()
@@ -366,9 +391,10 @@ fun WindowAudioCompression(
                     .clickable {
                         isClicked.value = !isClicked.value
                         val audio = selectAudioDetails
-                        if (audio != null && qualityReader.isNotEmpty()) {
+                        if (audio != null && selectedQuality.isNotEmpty()) {
 
-                            compressAudio(audio, qualityReader, outputFilePath)
+
+                            compressAudio(audio, selectedQuality, outputFilePath)
                             compressedAudio = outputFilePath
                             sharedViewModel.receiveAudio(AudioFile = outputFileAudio.absoluteFile)
                             navController.navigate("doneAudio")

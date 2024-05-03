@@ -41,6 +41,13 @@ fun AudioFinalWindow(navController: NavHostController, sharedViewModel: datashar
     val audioSize = AudioComes?.length()
     println(audioName)
 
+    fun formatFileSize(size: Long): String {
+        if (size <= 0) return "0 MB"
+        val fileSizeInMB = size.toDouble() / (1024 * 1024)
+        return String.format("%.2f MB", fileSizeInMB)
+    }
+    val sizeOffile = audioSize?.let { formatFileSize(it) }
+
 
 
     fun saveAudioToUri(context: Context, audioFile: File, uri: Uri) {
@@ -145,7 +152,7 @@ fun AudioFinalWindow(navController: NavHostController, sharedViewModel: datashar
 
                     )
                 Text(
-                    text = "Compressed Video Size:${audioSize}",
+                    text = "Compressed Video Size:${sizeOffile}",
                     color = androidx.compose.ui.graphics.Color.White,
                 )
 

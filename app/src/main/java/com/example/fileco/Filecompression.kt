@@ -1,8 +1,11 @@
 package com.example.fileco
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.net.Uri
 import android.os.Build
+import android.provider.OpenableColumns
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -27,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,10 +57,6 @@ import java.io.FileOutputStream
 fun WindowFileCompression(navController: NavHostController, sharedViewModel :datasharemodel) {
 
 
-    var qualityReader by remember {
-        mutableStateOf("")
-    }
-
     val context = LocalContext.current
     val buttonStrokeColor = Color(0xFF9DB2BF)
 
@@ -71,17 +71,59 @@ fun WindowFileCompression(navController: NavHostController, sharedViewModel :dat
     }
 
 
+    var selectedPdfName by remember {
+        mutableStateOf<String?>(null)
+    }
+    var selectedPdfSize by remember {
+        mutableStateOf<String?>(null)
+    }
+
+    val isPdfSelected =
+        remember { derivedStateOf { seletedDoc != null && selecteddocpath != null } }
+
+    fun getFileNameFromUri(uri: Uri?, context: Context): String? {
+        uri?.let {
+            val cursor = context.contentResolver.query(it, null, null, null, null)
+            cursor?.moveToFirst()
+            val nameIndex = cursor?.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            val fileName = nameIndex?.let { index ->
+                cursor.getString(index)
+            }
+            cursor?.close()
+            return fileName
+        }
+        return null
+    }
+
+    fun getFileSizeFromUri(uri: Uri?, context: Context): Long {
+        uri?.let {
+            val cursor = context.contentResolver.query(it, null, null, null, null)
+            cursor?.moveToFirst()
+            val sizeIndex = cursor?.getColumnIndex(OpenableColumns.SIZE)
+
+            val fileSize = sizeIndex?.let { index ->
+                cursor.getLong(index)
+
+            } ?: 0L
+            cursor?.close()
+            return fileSize
+        }
+
+        return 0L
+    }
+
+    fun formatFileSize(size: Long): String {
+        if (size <= 0) return "0 MB"
+        val fileSizeInMB = size.toDouble() / (1024 * 1024)
+        return String.format("%.2f MB", fileSizeInMB)
+    }
+
+    val sizeOffile = selectedPdfSize?.toLong()?.let { formatFileSize(it) }
 
 
-
-
-
-
-
-
- val FilePicker = rememberLauncherForActivityResult(
+    val FilePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument(),
-        onResult = {selectedUri ->
+        onResult = { selectedUri ->
             seletedDoc = selectedUri
             val inputStream = selectedUri?.let { context.contentResolver.openInputStream(it) }
             val tempFile = File(context.cacheDir, "doc.pdf")
@@ -95,6 +137,10 @@ fun WindowFileCompression(navController: NavHostController, sharedViewModel :dat
 
             val tempFilePath = tempFile.absolutePath
             selecteddocpath = tempFilePath
+            val pdfName = getFileNameFromUri(selectedUri, context)
+            selectedPdfName = pdfName
+            val pdfSize = getFileSizeFromUri(selectedUri, context)
+            selectedPdfSize = pdfSize.toString()
 
         }
     )
@@ -116,7 +162,7 @@ fun WindowFileCompression(navController: NavHostController, sharedViewModel :dat
 //logo for file compression
         Column(
             modifier = Modifier
-                .offset(x=30.dp,y= (60).dp)
+                .offset(x = 30.dp, y = (60).dp)
         ) {
             Column(
                 modifier = Modifier
@@ -128,11 +174,11 @@ fun WindowFileCompression(navController: NavHostController, sharedViewModel :dat
                     )
 
 
-
-            ){
+            ) {
 
                 // Logo Implemented in Rounded Rectangle for file compression
-                Image(painter = painterResource(id = R.drawable.article_fill0_wght400_grad0_opsz24),
+                Image(
+                    painter = painterResource(id = R.drawable.article_fill0_wght400_grad0_opsz24),
                     contentDescription = "Image of Image compression",
                     modifier = Modifier
                         .offset(x = 5.dp, y = (5).dp)
@@ -144,7 +190,7 @@ fun WindowFileCompression(navController: NavHostController, sharedViewModel :dat
             }
 
         }
-            //rounded rectangle position
+        //rounded rectangle position
         Column(
             modifier = Modifier
 
@@ -173,9 +219,8 @@ fun WindowFileCompression(navController: NavHostController, sharedViewModel :dat
 
                 Text(
                     color = Color.White,
-                    text = "Selected File:$seletedDoc"
+                    text = "\tFilename: $selectedPdfName\n\tFilesize: $sizeOffile "
                 )
-
 
 
             }
@@ -190,103 +235,15 @@ fun WindowFileCompression(navController: NavHostController, sharedViewModel :dat
                 .offset(25.dp, 650.dp)
 
         ) {
-            //button design for Button Quality
-            Column(
-                modifier = Modifier
-                    .height(68.dp)
-                    .width(321.dp)
-                    .background(
-                        color = Color(android.graphics.Color.parseColor("#526D82")),
-                        shape = RoundedCornerShape(60.dp)
-                    )
-                    .border(3.dp, color = buttonStrokeColor, shape = RoundedCornerShape(60.dp)),
-
-
-
-
-            ) {
-                Row {
-                    Text(
-                        text = "Quality",
-                        fontSize = 25.sp,
-                        color = Color.White,
-                        letterSpacing = (-1).sp,
-                        fontWeight = FontWeight.Medium,
-
-                        modifier = Modifier
-                            .offset(x = 20.dp, y = (15).dp)
-
-                    )
-
-
-                    TextField(
-                        value = qualityReader,
-                        leadingIcon = {
-                            Icon(
-                                painter = painterResource(id = R.drawable.clarify_fill0_wght400_grad0_opsz24),
-                                contentDescription = "quality icon",
-
-                                )
-                        },
-                        modifier = Modifier
-                            .width(100.dp)
-                            .offset(x = 128.dp, y = 5.dp)
-                            .border(
-                                width = 2.dp,
-                                color = buttonStrokeColor,
-                                shape = RoundedCornerShape(5.dp)
-                            ),
-                            colors = TextFieldDefaults.textFieldColors(
-                                containerColor = Color.Transparent,
-                                cursorColor = Color(android.graphics.Color.parseColor("#27374D")),
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White
-
-                            ),
-
-                        singleLine = true,
-
-
-                        onValueChange = { userResponse ->
-
-                                        if (userResponse.isEmpty()){
-                                            qualityReader = ""
-                                        }
-                            else{
-                                val numberCheck =userResponse.toIntOrNull()
-                                            if (numberCheck != null && numberCheck in 1..100){
-                                                qualityReader = userResponse
-                                               //quality reader is the variable use for compression operation
-                                            }
-                                        }
-                        },
-
-
-                    )
-                }
-
-
-
-
-            }
 
         }
-//        val outputDir = File(context.cacheDir, "Processed_pdfs")
-//        if (!outputDir.exists()) {
-//            outputDir.mkdirs()
-//        }
-//        val randomInt = Random.nextInt(1000)
-//        var outputFileName = "output${randomInt}.mp3"
-//        val outputFilePath = File(outputDir, outputFileName).absolutePath
-//        val outputFileAudio = File(outputDir, outputFileName)
 
 
         // Done Button
-
         Column(
 
             modifier = Modifier
-                .offset(25.dp, 740.dp)
+                .offset(25.dp, 650.dp)
 
         ) {
 
@@ -300,17 +257,23 @@ fun WindowFileCompression(navController: NavHostController, sharedViewModel :dat
                     )
                     .border(3.dp, color = buttonStrokeColor, shape = RoundedCornerShape(60.dp))
                     .clickable {
-                        val python = Python.getInstance()
-                        val pyModule = python.getModule("pdfCompressor")
-                        val pyFunction = pyModule.callAttr("pdfCompress",selecteddocpath )
-                        val pythonFilePath: String = pyFunction.toString()
-                        val kotlinFile = File(pythonFilePath)
-                        compressedDoc = kotlinFile
+                        if (isPdfSelected.value){
+                            val python = Python.getInstance()
+                            val pyModule = python.getModule("pdfCompressor")
+                            val pyFunction = pyModule.callAttr("pdfCompress", selecteddocpath)
+                            val pythonFilePath: String = pyFunction.toString()
+                            val kotlinFile = File(pythonFilePath)
+                            compressedDoc = kotlinFile
 
-                        sharedViewModel.receivePdfOut(PdfFile = compressedDoc)
-                        navController.navigate("donepdf")
+                            sharedViewModel.receivePdfOut(PdfFile = compressedDoc)
+                            navController.navigate("donepdf")
+                        } else {
+                            Toast
+                                .makeText(context, "Select Pdf first", Toast.LENGTH_SHORT)
+                                .show()
+                        }
+
                     }
-
 
 
             ) {
@@ -349,7 +312,9 @@ fun WindowFileCompression(navController: NavHostController, sharedViewModel :dat
                     .border(3.dp, color = buttonStrokeColor, shape = RoundedCornerShape(60.dp))
                     .clickable {
 
-                        FilePicker.launch(arrayOf("application/pdf"))
+                            FilePicker.launch(arrayOf("application/pdf"))
+
+
 
 
                     }
@@ -385,10 +350,11 @@ fun WindowFileCompression(navController: NavHostController, sharedViewModel :dat
 
         }
     }
-
-
-
 }
+
+
+
+
 
 
 

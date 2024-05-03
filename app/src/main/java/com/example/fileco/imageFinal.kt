@@ -41,6 +41,13 @@ fun imageFinalWindow(navController: NavHostController, sharedViewModel: datashar
     val imageSize = imageFile?.length()
     println("$imageFile")
 
+    fun formatFileSize(size: Long): String {
+        if (size <= 0) return "0 MB"
+        val fileSizeInMB = size.toDouble() / (1024 * 1024)
+        return String.format("%.2f MB", fileSizeInMB)
+    }
+    val sizeOffile = imageSize?.let { formatFileSize(it) }
+
 
     fun savePdfToUri(context: Context, imageFile: File, uri: Uri) {
         try {
@@ -145,7 +152,7 @@ fun imageFinalWindow(navController: NavHostController, sharedViewModel: datashar
 
                     )
                 Text(
-                    text = "Compressed Video Size:${imageSize}",
+                    text = "Compressed Video Size:${sizeOffile}",
                     color = androidx.compose.ui.graphics.Color.White,
                 )
 

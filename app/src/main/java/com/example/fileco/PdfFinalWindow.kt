@@ -43,6 +43,13 @@ fun compressedPDFFinal(navController: NavHostController, sharedViewModel: datash
     val pdfSize = pdfFile?.length()
     println("$pdfName")
 
+    fun formatFileSize(size: Long): String {
+        if (size <= 0) return "0 MB"
+        val fileSizeInMB = size.toDouble() / (1024 * 1024)
+        return String.format("%.2f MB", fileSizeInMB)
+    }
+    val sizeOffile = pdfSize?.let { formatFileSize(it) }
+
     fun savePdfToUri(context: Context, pdfFile: File, uri: Uri) {
         try {
             context.contentResolver.openOutputStream(uri)?.use { output ->
@@ -151,7 +158,7 @@ fun compressedPDFFinal(navController: NavHostController, sharedViewModel: datash
 
                     )
                 Text(
-                    text = "Compressed Video Size:${pdfSize}",
+                    text = "Compressed Video Size:${sizeOffile}",
                     color = androidx.compose.ui.graphics.Color.White,
                 )
 

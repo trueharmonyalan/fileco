@@ -6,6 +6,7 @@ import android.database.Cursor
 import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.MediaStore
+import android.provider.OpenableColumns
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -32,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -78,6 +80,36 @@ import java.io.File
     val isClicked = remember { mutableStateOf(false) }
 
 
+    var selectedImageSize by remember {
+        mutableStateOf<String?>(null)
+    }
+    val isImageSelected = remember { derivedStateOf { selectedImage != null && selectedImagepath != null } }
+
+    fun getFileSizeFromUri(uri: Uri?, context: Context): Long {
+        uri?.let {
+            val cursor = context.contentResolver.query(it, null, null, null, null)
+            cursor?.moveToFirst()
+            val sizeIndex = cursor?.getColumnIndex(OpenableColumns.SIZE)
+
+            val fileSize = sizeIndex?.let { index ->
+                cursor.getLong(index)
+
+            } ?: 0L
+            cursor?.close()
+            return fileSize
+        }
+
+        return 0L
+    }
+
+    fun formatFileSize(size: Long): String {
+        if (size <= 0) return "0 MB"
+        val fileSizeInMB = size.toDouble() / (1024 * 1024)
+        return String.format("%.2f MB", fileSizeInMB)
+    }
+
+    val sizeOffile = selectedImageSize?.toLong()?.let { formatFileSize(it) }
+
 
     fun getRealPathFromImageURI(context: Context, contentUri: Uri): String? {
         var cursor: Cursor? = null
@@ -111,6 +143,9 @@ import java.io.File
             val imagePath = selectedUri?.let { getRealPathFromImageURI(context, it) }
             selectedImage = selectedUri
             selectedImagepath = imagePath
+            val ImageSize = getFileSizeFromUri(selectedUri, context)
+            selectedImageSize = ImageSize.toString()
+
             println("when selected${selectedImagepath}")
         }
     )
@@ -127,7 +162,7 @@ import java.io.File
             .fillMaxSize()
             .background(color = Color(android.graphics.Color.parseColor("#27374D")))
             .padding(5.dp)
-            .offset(x=30.dp),
+            .offset(x = 30.dp),
 
 
     ) {
@@ -187,6 +222,12 @@ import java.io.File
 
             ) {
 
+                if (sizeOffile != null) {
+                    Text(
+                        text = "Size: $sizeOffile",
+                        color = Color.White
+                    )
+                }
 
 
 
@@ -241,6 +282,7 @@ import java.io.File
 
 
                     TextField(
+                        enabled = isImageSelected.value,
                         value = qualityReader,
                         leadingIcon = {
                             Icon(painter = painterResource(id = R.drawable.clarify_fill0_wght400_grad0_opsz24),
@@ -314,7 +356,11 @@ import java.io.File
                             val python = Python.getInstance()
                             val pyModule = python.getModule("imageCompressor")
                             println("before sharing to pycompressor${selectedImagepath}")
-                            val pyFunction = pyModule.callAttr("imagecompressor",selectedImagepath,qualityReader )
+                            val pyFunction = pyModule.callAttr(
+                                "imagecompressor",
+                                selectedImagepath,
+                                qualityReader
+                            )
                             val pythonFilePath: String = pyFunction.toString()
                             val kotlinFile = File(pythonFilePath)
                             compressedImage = kotlinFile
@@ -322,10 +368,10 @@ import java.io.File
                             sharedViewModel.receivePdfOut(PdfFile = compressedImage)
                             navController.navigate("doneImage")
                         } else {
-                            Toast.makeText(context, "Select image first", Toast.LENGTH_SHORT).show()
+                            Toast
+                                .makeText(context, "Select image first", Toast.LENGTH_SHORT)
+                                .show()
                         }
-
-
 
 
                     }
