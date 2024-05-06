@@ -2,11 +2,9 @@ package com.example.fileco
 
 import android.content.ContentValues.TAG
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.provider.OpenableColumns
 import android.util.Log
-import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,10 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -44,20 +39,26 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.googlefonts.Font
+import androidx.compose.ui.text.googlefonts.GoogleFont
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.arthenica.ffmpegkit.FFmpegKit
 import com.arthenica.ffmpegkit.FFmpegSession
 import com.arthenica.ffmpegkit.ReturnCode
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import kotlin.random.Random
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WindowAudioCompression(
     navController: NavHostController,
@@ -93,6 +94,7 @@ fun WindowAudioCompression(
     val isClicked = remember { mutableStateOf(false) }
 
     val isAudioSelected = remember { derivedStateOf { selectedAudio != null && selectAudioDetails != null } }
+
 
     var selectedAudioName by remember {
         mutableStateOf<String?>(null)
@@ -132,9 +134,18 @@ fun WindowAudioCompression(
     }
 
     fun formatFileSize(size: Long): String {
-        if (size <= 0) return "0 MB"
-        val fileSizeInMB = size.toDouble() / (1024 * 1024)
-        return String.format("%.2f MB", fileSizeInMB)
+        val kiloBytes = 1000.0
+        val megaBytes = kiloBytes * 1000
+        val gigaBytes = megaBytes * 1000
+
+        return when {
+            size < kiloBytes -> "$size B"
+            size < megaBytes -> "%.2f KB".format(size / kiloBytes)
+            else -> {
+                val sizeInMB = size.toDouble() / megaBytes
+                "%.2f MB".format(sizeInMB)
+            }
+        }
     }
 
     val sizeOffile = selectedAudioSize?.toLong()?.let { formatFileSize(it) }
@@ -175,6 +186,23 @@ fun WindowAudioCompression(
         }
     )
 
+    val provider = GoogleFont.Provider(
+        providerAuthority = "com.google.android.gms.fonts",
+        providerPackage = "com.google.android.gms",
+        certificates = R.array.com_google_android_gms_fonts_certs
+    )
+
+    val fontName = GoogleFont("Roboto")
+
+    val fontFamily = FontFamily(
+        Font(
+            googleFont = fontName,
+            fontProvider = provider,
+            weight = FontWeight.Bold,
+            style = FontStyle.Italic
+        )
+    )
+
 
 
 
@@ -184,57 +212,37 @@ fun WindowAudioCompression(
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color(android.graphics.Color.parseColor("#27374D")))
-            .offset(x = 30.dp)
-            .padding(10.dp)
+            .padding(30.dp)
+            .offset(10.dp, 0.dp)
 
     ) {
 
-//logo for file compression
-        Column(
+        Text(
+            fontFamily= fontFamily,
+            text = "Audio",
+            fontSize = 30.sp,
+            color = Color.White,
+            fontWeight = FontWeight.Thin
+        )
+        Text(
             modifier = Modifier
-                .offset(x=30.dp,y= (60).dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .width(50.dp)
-                    .height(50.dp)
-                    .background(
-                        color = Color(android.graphics.Color.parseColor("#DDE6ED")),
-                        shape = RoundedCornerShape(5.dp)
-                    )
+                .offset(0.dp,27.dp),
+            text = "Compressor.",
+            fontSize = 40.sp,
+            fontFamily= fontFamily,
+            color = Color.White,
+            fontWeight = FontWeight.Bold
+        )
 
 
-
-            ){
-
-                // Logo Implemented in Rounded Rectangle for file compression
-                Image(painter = painterResource(id = R.drawable.graphic_eq_fill0_wght400_grad0_opsz24),
-                    contentDescription = "Image of Image compression",
-                    modifier = Modifier
-                        .offset(x = 5.dp, y = (5).dp)
-                        .size(40.dp)
-
-                )
-
-
-            }
-
-        }
-        //rounded rectangle position
-        Column(
-            modifier = Modifier
-
-
-                .offset(40.dp, 200.dp)
-                .padding(0.dp)
-        ) {
 
             //rounded rectangle configuration
 
             Column(
                 modifier = Modifier
                     .height(296.dp)
-                    .width(296.dp)
+                    .width(330.dp)
+                    .offset(0.dp, 100.dp)
                     .background(
                         color = Color(android.graphics.Color.parseColor("#17273e")),
                         shape = RoundedCornerShape(15.dp)
@@ -247,32 +255,39 @@ fun WindowAudioCompression(
             ) {
 
                 //Icon inside rounded rectangle
+                if (isAudioSelected.value){
+                    Text(
+                        text = "Audio name: \n${selectedAudioName} \nAudio size: ${sizeOffile}",
+                        color = Color.White,
+                        fontSize = 20.sp,
+                        fontFamily= fontFamily,
+                        fontWeight = FontWeight.Light,
 
-                Text(
-                    text = "Audio name: ${selectedAudioName}\n Audio size: ${sizeOffile}",
-                    color = Color.White,
+                        )
+                }else{
+                    Text(
+                        color = Color.White,
+                        fontSize = 20.sp,
+                        fontFamily= fontFamily,
+                        fontWeight = FontWeight.Light,
+                        text = "Choose audio!")
+                }
 
-                )
 
 
 
 
             }
-        }
 
 
-        // Button Three is inside this Container
-        Column(
 
-            modifier = Modifier
-                .offset(25.dp, 650.dp)
 
-        ) {
             //button design for Button Three
             Column(
                 modifier = Modifier
                     .height(68.dp)
                     .width(321.dp)
+                    .offset(10.dp, 530.dp)
                     .background(
                         color = Color(android.graphics.Color.parseColor("#526D82")),
                         shape = RoundedCornerShape(60.dp)
@@ -293,13 +308,20 @@ fun WindowAudioCompression(
                         shape = RoundedCornerShape(30.dp),
                         modifier = Modifier
                             .offset((-10).dp)
-                            .border(3.dp, color = buttonStrokeColor, shape = RoundedCornerShape(60.dp)),
+                            .border(
+                                3.dp,
+                                color = buttonStrokeColor,
+                                shape = RoundedCornerShape(60.dp)
+                            ),
                         onClick = {
                             selectedQuality = "128k"
                             Toast.makeText(context, "Quality set to 128k ", Toast.LENGTH_SHORT).show()
                         }
                     ) {
-                        Text(text = "128k")
+                        Text(
+                            color = Color.White,
+                            text = "128k"
+                        )
                     }
 
                     Button(
@@ -313,7 +335,10 @@ fun WindowAudioCompression(
                             Toast.makeText(context, "Quality set to 224k ", Toast.LENGTH_SHORT).show()
                         }
                     ) {
-                        Text(text = "224k")
+                        Text(
+                            color = Color.White,
+                            text = "224k"
+                        )
                     }
 
                     Button(
@@ -322,18 +347,25 @@ fun WindowAudioCompression(
                         shape = RoundedCornerShape(30.dp),
                         modifier = Modifier
                             .offset((10).dp)
-                            .border(3.dp, color = buttonStrokeColor, shape = RoundedCornerShape(60.dp)),
+                            .border(
+                                3.dp,
+                                color = buttonStrokeColor,
+                                shape = RoundedCornerShape(60.dp)
+                            ),
                         onClick = {
                             selectedQuality = "320k"
                             Toast.makeText(context, "Quality set to 320k ", Toast.LENGTH_SHORT).show()
                         }
                     ) {
-                        Text(text = "320k")
+                        Text(
+                            color = Color.White,
+                            text = "320k"
+                        )
                     }
             }
             }
 
-        }
+
         println(selectedQuality)
         val outputDir = File(context.cacheDir, "processed_audio")
         if (!outputDir.exists()) {
@@ -347,42 +379,39 @@ fun WindowAudioCompression(
 
 
 
-        fun compressAudio(inputPath: String, quality: String, outputFile: String){
+        fun compressAudio(inputPath: String, quality: String, outputFile: String) = runBlocking{
 
-
-            // Get quality value from the text box and assign it to the quality variable
-
-            // Construct the FFmpeg command with the quality parameter
+        GlobalScope.launch {
             val command = "-i $inputPath -b:a $quality $outputFile"
 
-            // Execute the FFmpeg command
             val session: FFmpegSession = FFmpegKit.execute(command)
 
-            // Check the execution result
             if (ReturnCode.isSuccess(session.returnCode)) {
-                // Compression successful
-                Log.d(TAG, "Audio compression successful! Output file")
+                compressedAudio = outputFilePath
+                withContext(Dispatchers.Main){
+                    sharedViewModel.receiveAudio(AudioFile = outputFileAudio.absoluteFile)
+                    navController.navigate("doneAudio")
+                }
+
             } else {
                 // Compression failed
                 Log.e(TAG, "Audio compression failed.")
             }
+        }
+
+
 
         }
 
 
-        // Done Button
 
-        Column(
-
-            modifier = Modifier
-                .offset(25.dp, 740.dp)
-
-        ) {
 
             Column(
                 modifier = Modifier
                     .height(68.dp)
                     .width(321.dp)
+                    .offset(10.dp, 630.dp)
+
                     .background(
                         color = Color(android.graphics.Color.parseColor("#526D82")),
                         shape = RoundedCornerShape(60.dp)
@@ -392,16 +421,12 @@ fun WindowAudioCompression(
                         isClicked.value = !isClicked.value
                         val audio = selectAudioDetails
                         if (audio != null && selectedQuality.isNotEmpty()) {
-
-
                             compressAudio(audio, selectedQuality, outputFilePath)
-                            compressedAudio = outputFilePath
-                            sharedViewModel.receiveAudio(AudioFile = outputFileAudio.absoluteFile)
-                            navController.navigate("doneAudio")
 
-
-                        }else {
-                            Toast.makeText(context, "Select audio first", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast
+                                .makeText(context, "Select audio first", Toast.LENGTH_SHORT)
+                                .show()
                         }
 
 
@@ -423,19 +448,15 @@ fun WindowAudioCompression(
                 )
             }
 
-        }
 
-        Column(
 
-            modifier = Modifier
-                .offset(25.dp, 560.dp)
 
-        ) {
 
             Column(
                 modifier = Modifier
                     .height(68.dp)
                     .width(321.dp)
+                    .offset(10.dp, 430.dp)
                     .background(
                         color = Color(android.graphics.Color.parseColor("#526D82")),
                         shape = RoundedCornerShape(60.dp)
@@ -443,7 +464,7 @@ fun WindowAudioCompression(
                     .border(3.dp, color = buttonStrokeColor, shape = RoundedCornerShape(60.dp))
                     .clickable {
 
-                    AudioPicker.launch("audio/mpeg")
+                        AudioPicker.launch("audio/mpeg")
 
                     }
 
@@ -476,7 +497,7 @@ fun WindowAudioCompression(
 
             }
 
-        }
+
 
     }
     }

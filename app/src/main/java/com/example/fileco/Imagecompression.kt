@@ -45,7 +45,11 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.googlefonts.Font
+import androidx.compose.ui.text.googlefonts.GoogleFont
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -53,6 +57,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.chaquo.python.Python
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 import java.io.File
 
@@ -103,9 +112,18 @@ import java.io.File
     }
 
     fun formatFileSize(size: Long): String {
-        if (size <= 0) return "0 MB"
-        val fileSizeInMB = size.toDouble() / (1024 * 1024)
-        return String.format("%.2f MB", fileSizeInMB)
+        val kiloBytes = 1000.0
+        val megaBytes = kiloBytes * 1000
+        val gigaBytes = megaBytes * 1000
+
+        return when {
+            size < kiloBytes -> "$size B"
+            size < megaBytes -> "%.2f KB".format(size / kiloBytes)
+            else -> {
+                val sizeInMB = size.toDouble() / megaBytes
+                "%.2f MB".format(sizeInMB)
+            }
+        }
     }
 
     val sizeOffile = selectedImageSize?.toLong()?.let { formatFileSize(it) }
@@ -150,7 +168,22 @@ import java.io.File
         }
     )
 
+    val provider = GoogleFont.Provider(
+        providerAuthority = "com.google.android.gms.fonts",
+        providerPackage = "com.google.android.gms",
+        certificates = R.array.com_google_android_gms_fonts_certs
+    )
 
+    val fontName = GoogleFont("Roboto")
+
+    val fontFamily = FontFamily(
+        Font(
+            googleFont = fontName,
+            fontProvider = provider,
+            weight = FontWeight.Bold,
+            style = FontStyle.Italic
+        )
+    )
 
 
 
@@ -162,57 +195,37 @@ import java.io.File
             .fillMaxSize()
             .background(color = Color(android.graphics.Color.parseColor("#27374D")))
             .padding(5.dp)
-            .offset(x = 30.dp),
+            .padding(30.dp)
+            .offset(10.dp,0.dp)
 
 
     ) {
-
-//logo for file compression
-        Column(
+        Text(
+            fontFamily= fontFamily,
+            text = "Image",
+            fontSize = 30.sp,
+            color = Color.White,
+            fontWeight = FontWeight.Thin
+        )
+        Text(
             modifier = Modifier
-                .offset(x=30.dp,y= (60).dp),
-        ) {
-            Column(
-                modifier = Modifier
-                    .width(50.dp)
-                    .height(50.dp)
-                    .background(
-                        color = Color(android.graphics.Color.parseColor("#DDE6ED")),
-                        shape = RoundedCornerShape(5.dp)
-                    )
+                .offset(0.dp,27.dp),
+            text = "Compressor.",
+            fontSize = 40.sp,
+            fontFamily= fontFamily,
+            color = Color.White,
+            fontWeight = FontWeight.Bold
+        )
 
 
-
-            ){
-
-                // Logo Implemented in Rounded Rectangle for file compression
-                Image(painter = painterResource(id = R.drawable.image_fill0_wght400_grad0_opsz24),
-                    contentDescription = "Image of Image compression",
-                    modifier = Modifier
-                        .offset(x = 5.dp, y = (5).dp)
-                        .size(40.dp)
-
-                )
-
-
-            }
-
-        }
-        //rounded rectangle position
-        Column(
-            modifier = Modifier
-
-
-                .offset(40.dp, 200.dp)
-                .padding(0.dp)
-        ) {
 
             //rounded rectangle configuration
 
             Column(
                 modifier = Modifier
                     .height(296.dp)
-                    .width(296.dp)
+                    .width(330.dp)
+                    .offset(0.dp, 100.dp)
                     .background(
                         color = Color(android.graphics.Color.parseColor("#17273e")),
                         shape = RoundedCornerShape(15.dp)
@@ -244,21 +257,15 @@ import java.io.File
 
             }
 
-        }
 
 
-        // Button Three is inside this Container
-        Column(
 
-            modifier = Modifier
-                .offset(25.dp, 650.dp)
-
-        ) {
             //button design for Button Three
             Column(
                 modifier = Modifier
                     .height(68.dp)
                     .width(321.dp)
+                    .offset(5.dp, 530.dp)
                     .background(
                         color = Color(android.graphics.Color.parseColor("#526D82")),
                         shape = RoundedCornerShape(60.dp)
@@ -328,6 +335,44 @@ import java.io.File
                 }
             }
 
+
+
+
+
+
+
+
+
+
+
+
+
+        fun compressImage(image :String, qualityReader:String) = runBlocking{
+            GlobalScope.launch {
+                if (image != null && qualityReader.isNotEmpty()) {
+                    val python = Python.getInstance()
+                    val pyModule = python.getModule("imageCompressor")
+                    println("before sharing to pycompressor${selectedImagepath}")
+                    val pyFunction = pyModule.callAttr(
+                        "imagecompressor",
+                        selectedImagepath,
+                        qualityReader
+                    )
+                    val pythonFilePath: String = pyFunction.toString()
+                    val kotlinFile = File(pythonFilePath)
+                    compressedImage = kotlinFile
+
+                    withContext(Dispatchers.Main) {
+                        sharedViewModel.receivePdfOut(PdfFile = compressedImage)
+                        navController.navigate("doneImage")
+                    }
+
+                } else {
+                    Toast
+                        .makeText(context, "Select image first", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
         }
 
 
@@ -336,7 +381,7 @@ import java.io.File
         Column(
 
             modifier = Modifier
-                .offset(25.dp, 740.dp)
+                .offset(5.dp, 630.dp)
 
         ) {
 
@@ -352,25 +397,29 @@ import java.io.File
                     .clickable {
                         isClicked.value = !isClicked.value
                         val image = selectedImagepath
-                        if (image != null && qualityReader.isNotEmpty()) {
-                            val python = Python.getInstance()
-                            val pyModule = python.getModule("imageCompressor")
-                            println("before sharing to pycompressor${selectedImagepath}")
-                            val pyFunction = pyModule.callAttr(
-                                "imagecompressor",
-                                selectedImagepath,
-                                qualityReader
-                            )
-                            val pythonFilePath: String = pyFunction.toString()
-                            val kotlinFile = File(pythonFilePath)
-                            compressedImage = kotlinFile
 
-                            sharedViewModel.receivePdfOut(PdfFile = compressedImage)
-                            navController.navigate("doneImage")
-                        } else {
-                            Toast
-                                .makeText(context, "Select image first", Toast.LENGTH_SHORT)
-                                .show()
+//                        if (image != null && qualityReader.isNotEmpty()) {
+//                            val python = Python.getInstance()
+//                            val pyModule = python.getModule("imageCompressor")
+//                            println("before sharing to pycompressor${selectedImagepath}")
+//                            val pyFunction = pyModule.callAttr(
+//                                "imagecompressor",
+//                                selectedImagepath,
+//                                qualityReader
+//                            )
+//                            val pythonFilePath: String = pyFunction.toString()
+//                            val kotlinFile = File(pythonFilePath)
+//                            compressedImage = kotlinFile
+//
+//                            sharedViewModel.receivePdfOut(PdfFile = compressedImage)
+//                            navController.navigate("doneImage")
+//                        } else {
+//                            Toast
+//                                .makeText(context, "Select image first", Toast.LENGTH_SHORT)
+//                                .show()
+//                        }
+                        if (image != null) {
+                            compressImage(image,qualityReader)
                         }
 
 
@@ -398,7 +447,7 @@ import java.io.File
         Column(
 
             modifier = Modifier
-                .offset(25.dp, 560.dp)
+                .offset(5.dp, 430.dp),
 
         ) {
 

@@ -2,6 +2,7 @@ package com.example.fileco
 
 import android.content.Context
 import android.net.Uri
+import android.provider.Settings.Global
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -26,10 +27,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.googlefonts.Font
+import androidx.compose.ui.text.googlefonts.GoogleFont
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.io.IOException
 
@@ -42,9 +50,18 @@ fun imageFinalWindow(navController: NavHostController, sharedViewModel: datashar
     println("$imageFile")
 
     fun formatFileSize(size: Long): String {
-        if (size <= 0) return "0 MB"
-        val fileSizeInMB = size.toDouble() / (1024 * 1024)
-        return String.format("%.2f MB", fileSizeInMB)
+        val kiloBytes = 1000.0
+        val megaBytes = kiloBytes * 1000
+        val gigaBytes = megaBytes * 1000
+
+        return when {
+            size < kiloBytes -> "$size B"
+            size < megaBytes -> "%.2f KB".format(size / kiloBytes)
+            else -> {
+                val sizeInMB = size.toDouble() / megaBytes
+                "%.2f MB".format(sizeInMB)
+            }
+        }
     }
     val sizeOffile = imageSize?.let { formatFileSize(it) }
 
@@ -72,13 +89,31 @@ fun imageFinalWindow(navController: NavHostController, sharedViewModel: datashar
         }
     )
 
-    fun savePdf() {
-        // Get the Uri of the compressed video file
-        val uri = imageFile?.let { Uri.fromFile(it) }
-
-        // Create an intent to save the file
-        savePdfLauncher.launch(imageFile.toString())
+    fun saveImage() = runBlocking {
+        GlobalScope.launch {
+            savePdfLauncher.launch(imageFile.toString())
+        }
     }
+
+
+
+    val provider = GoogleFont.Provider(
+        providerAuthority = "com.google.android.gms.fonts",
+        providerPackage = "com.google.android.gms",
+        certificates = R.array.com_google_android_gms_fonts_certs
+    )
+
+    val fontName = GoogleFont("Roboto")
+
+    val fontFamily = FontFamily(
+        Font(
+            googleFont = fontName,
+            fontProvider = provider,
+            weight = FontWeight.Bold,
+            style = FontStyle.Italic
+        )
+    )
+
 
 
     Box(
@@ -86,58 +121,27 @@ fun imageFinalWindow(navController: NavHostController, sharedViewModel: datashar
         modifier = Modifier
             .fillMaxSize()
             .background(Color(android.graphics.Color.parseColor("#27374D")))
-            .padding(5.dp)
+            .padding(30.dp)
             .offset(x = 30.dp),
 
 
         ) {
 
-//logo for file compression
-        Column(
-            modifier = Modifier
-                .offset(x = 30.dp, y = (60).dp),
-        ) {
-            Column(
-                modifier = Modifier
-                    .width(50.dp)
-                    .height(50.dp)
-                    .background(
-                        color = Color(android.graphics.Color.parseColor("#DDE6ED")),
-                        shape = RoundedCornerShape(5.dp)
-                    )
-
-
-            ) {
-
-                // Logo Implemented in Rounded Rectangle for file compression
-                Image(
-                    painter = painterResource(id = R.drawable.image_fill0_wght400_grad0_opsz24),
-                    contentDescription = "Image of Image compression",
-                    modifier = Modifier
-                        .offset(x = 5.dp, y = (5).dp)
-                        .size(40.dp)
-
-                )
-
-
-            }
-
-        }
-        //rounded rectangle position
-        Column(
-            modifier = Modifier
-
-
-                .offset(((-10).dp), 200.dp)
-                .padding(0.dp)
-        ) {
+        Text(
+            fontFamily= fontFamily,
+            text = "Completed!..",
+            fontSize = 30.sp,
+            color = Color.White,
+            fontWeight = FontWeight.Thin
+        )
 
             //rounded rectangle configuration
 
             Column(
                 modifier = Modifier
                     .height(296.dp)
-                    .width(396.dp)
+                    .width(330.dp)
+                    .offset(0.dp, 230.dp)
                     .background(
                         color = Color(android.graphics.Color.parseColor("#17273e")),
                         shape = RoundedCornerShape(15.dp)
@@ -147,26 +151,34 @@ fun imageFinalWindow(navController: NavHostController, sharedViewModel: datashar
 
             ) {
                 Text(
+                    color = Color.White,
+                    fontFamily = fontFamily,
+                    fontWeight = FontWeight.Light,
                     text = "Compressed Video:${imageName}",
-                    color = androidx.compose.ui.graphics.Color.White,
+
+
+
 
                     )
                 Text(
+                    color = Color.White,
+                    fontFamily = fontFamily,
+                    fontWeight = FontWeight.Light,
                     text = "Compressed Video Size:${sizeOffile}",
-                    color = androidx.compose.ui.graphics.Color.White,
+
                 )
 
 
 
             }
-        }
+
 
 
     }
 
     Column(
         modifier = Modifier
-            .offset(x=25.dp,y=520.dp)
+            .offset(x=65.dp,y=620.dp)
 
     ) {
         Column(
@@ -180,7 +192,7 @@ fun imageFinalWindow(navController: NavHostController, sharedViewModel: datashar
                 .border(3.dp, color = buttonStrokeColor, shape = RoundedCornerShape(60.dp))
                 .clickable {
 
-                    savePdf()
+                    saveImage()
                 }
 
 
@@ -193,7 +205,7 @@ fun imageFinalWindow(navController: NavHostController, sharedViewModel: datashar
                 fontWeight = FontWeight.Medium,
 
                 modifier = Modifier
-                    .offset(x = 20.dp, y = 16.dp)
+                    .offset(x = 130.dp, y = 16.dp)
 
             )
         }

@@ -46,11 +46,16 @@ import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavHostController
 import java.io.File
 import android.Manifest
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.googlefonts.Font
+import androidx.compose.ui.text.googlefonts.GoogleFont
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.io.IOException
 
 
-const val SAVE_REQUEST_CODE = 1001 // Define a request code for saving the file
-private const val REQUEST_SAVE_VIDEO = 123
 
 @Composable
 fun FinalWindowPage(navController: NavHostController,sharedViewModel: datasharemodel) {
@@ -62,10 +67,19 @@ val context = LocalContext.current
 
 
 
-     fun formatFileSize(size: Long): String {
-        if (size <= 0) return "0 MB"
-        val fileSizeInMB = size.toDouble() / (1024 * 1024)
-        return String.format("%.2f MB", fileSizeInMB)
+    fun formatFileSize(size: Long): String {
+        val kiloBytes = 1000.0
+        val megaBytes = kiloBytes * 1000
+        val gigaBytes = megaBytes * 1000
+
+        return when {
+            size < kiloBytes -> "$size B"
+            size < megaBytes -> "%.2f KB".format(size / kiloBytes)
+            else -> {
+                val sizeInMB = size.toDouble() / megaBytes
+                "%.2f MB".format(sizeInMB)
+            }
+        }
     }
     val sizeOffile = fileSize?.let { formatFileSize(it) }
 
@@ -96,19 +110,34 @@ val context = LocalContext.current
         }
     )
 
-    fun saveFile() {
-        // Get the Uri of the compressed video file
-        val uri = VideoComes?.let { Uri.fromFile(it) }
 
-        // Create an intent to save the file
-        saveFileLauncher.launch(fileName)
+
+    fun saveFile() = runBlocking {
+        GlobalScope.launch {
+            saveFileLauncher.launch(fileName)
+        }
+
     }
 
 
 
 
+    val provider = GoogleFont.Provider(
+        providerAuthority = "com.google.android.gms.fonts",
+        providerPackage = "com.google.android.gms",
+        certificates = R.array.com_google_android_gms_fonts_certs
+    )
 
+    val fontName = GoogleFont("Roboto")
 
+    val fontFamily = FontFamily(
+        Font(
+            googleFont = fontName,
+            fontProvider = provider,
+            weight = FontWeight.Bold,
+            style = FontStyle.Italic
+        )
+    )
 
 
 
@@ -120,87 +149,59 @@ val context = LocalContext.current
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color(android.graphics.Color.parseColor("#27374D")))
-            .padding(5.dp)
-            .offset(x = 30.dp),
+            .padding(30.dp)
+
 
 
         ) {
 
-//logo for file compression
+        Text(
+            fontFamily = fontFamily,
+            text = "Completed!..",
+            fontSize = 30.sp,
+            color = Color.White,
+            fontWeight = FontWeight.Thin
+        )
+
+        //rounded rectangle configuration
+
         Column(
             modifier = Modifier
-                .offset(x = 30.dp, y = (60).dp),
+                .height(296.dp)
+                .width(360.dp)
+                .offset(0.dp, 100.dp)
+                .background(
+                    color = Color(android.graphics.Color.parseColor("#17273e")),
+                    shape = RoundedCornerShape(15.dp)
+                ),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+
         ) {
-            Column(
-                modifier = Modifier
-                    .width(50.dp)
-                    .height(50.dp)
-                    .background(
-                        color = Color(android.graphics.Color.parseColor("#DDE6ED")),
-                        shape = RoundedCornerShape(5.dp)
-                    )
+            Text(
+                text = "Compressed Video:\n${fileName}\n",
+                color = Color.White,
+                fontFamily = fontFamily,
+                fontWeight = FontWeight.Light
 
+            )
+            Text(
+                text = "Compressed Video Size: ${sizeOffile}",
+                color = Color.White,
+                fontFamily = fontFamily,
+                fontWeight = FontWeight.Light
+            )
 
-            ) {
-
-                // Logo Implemented in Rounded Rectangle for file compression
-                Image(
-                    painter = painterResource(id = R.drawable.image_fill0_wght400_grad0_opsz24),
-                    contentDescription = "Image of Image compression",
-                    modifier = Modifier
-                        .offset(x = 5.dp, y = (5).dp)
-                        .size(40.dp)
-
-                )
-
-
-            }
 
         }
-        //rounded rectangle position
-        Column(
-            modifier = Modifier
-
-
-                .offset((-10.dp), 200.dp)
-                .padding(0.dp)
-        ) {
-
-            //rounded rectangle configuration
-
-            Column(
-                modifier = Modifier
-                    .height(296.dp)
-                    .width(396.dp)
-                    .background(
-                        color = Color(android.graphics.Color.parseColor("#17273e")),
-                        shape = RoundedCornerShape(15.dp)
-                    ),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-
-            ) {
-                    Text(
-                        text = "Compressed Video:${fileName}",
-                        color = Color.White,
-
-                        )
-                    Text(
-                        text = "Compressed Video Size:${sizeOffile}",
-                        color = Color.White,
-                    )
 
 
 
-            }
-                }
 
-
-    }
 
         Column(
             modifier = Modifier
-                .offset(x=25.dp,y=520.dp)
+                .offset(x = 20.dp, y = 420.dp)
 
         ) {
             Column(
@@ -227,15 +228,14 @@ val context = LocalContext.current
                     fontWeight = FontWeight.Medium,
 
                     modifier = Modifier
-                        .offset(x = 20.dp, y = 16.dp)
+                        .offset(x = 130.dp, y = 16.dp)
 
                 )
             }
         }
 
 
-
-
+    }
 
 }
 

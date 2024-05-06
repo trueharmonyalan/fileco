@@ -112,7 +112,7 @@ fun HomeUi(navController: NavHostController) {
                     Text(
                         modifier = Modifier
                             .offset(x=100.dp,y=15.dp),
-                        text ="File Compression",
+                        text ="PDF Compression",
                         fontSize = 25.sp,
                         color = Color.White,
                         letterSpacing = (-1).sp,

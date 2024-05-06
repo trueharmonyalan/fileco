@@ -41,11 +41,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.googlefonts.Font
+import androidx.compose.ui.text.googlefonts.GoogleFont
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.chaquo.python.Python
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 
@@ -113,9 +122,18 @@ fun WindowFileCompression(navController: NavHostController, sharedViewModel :dat
     }
 
     fun formatFileSize(size: Long): String {
-        if (size <= 0) return "0 MB"
-        val fileSizeInMB = size.toDouble() / (1024 * 1024)
-        return String.format("%.2f MB", fileSizeInMB)
+        val kiloBytes = 1000.0
+        val megaBytes = kiloBytes * 1000
+        val gigaBytes = megaBytes * 1000
+
+        return when {
+            size < kiloBytes -> "$size B"
+            size < megaBytes -> "%.2f KB".format(size / kiloBytes)
+            else -> {
+                val sizeInMB = size.toDouble() / megaBytes
+                "%.2f MB".format(sizeInMB)
+            }
+        }
     }
 
     val sizeOffile = selectedPdfSize?.toLong()?.let { formatFileSize(it) }
@@ -146,6 +164,24 @@ fun WindowFileCompression(navController: NavHostController, sharedViewModel :dat
     )
 
 
+    val provider = GoogleFont.Provider(
+        providerAuthority = "com.google.android.gms.fonts",
+        providerPackage = "com.google.android.gms",
+        certificates = R.array.com_google_android_gms_fonts_certs
+    )
+
+    val fontName = GoogleFont("Roboto")
+
+    val fontFamily = FontFamily(
+        Font(
+            googleFont = fontName,
+            fontProvider = provider,
+            weight = FontWeight.Bold,
+            style = FontStyle.Italic
+        )
+    )
+
+
 
 
 
@@ -154,57 +190,36 @@ fun WindowFileCompression(navController: NavHostController, sharedViewModel :dat
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color(android.graphics.Color.parseColor("#27374D")))
-            .offset(x = 30.dp)
-            .padding(10.dp)
+            .padding(30.dp)
+            .offset(10.dp, 70.dp)
 
     ) {
-
-//logo for file compression
-        Column(
+        Text(
+            fontFamily= fontFamily,
+            text = "PDF",
+            fontSize = 30.sp,
+            color = Color.White,
+            fontWeight = FontWeight.Thin
+        )
+        Text(
             modifier = Modifier
-                .offset(x = 30.dp, y = (60).dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .width(50.dp)
-                    .height(50.dp)
-                    .background(
-                        color = Color(android.graphics.Color.parseColor("#DDE6ED")),
-                        shape = RoundedCornerShape(5.dp)
-                    )
+                .offset(0.dp,27.dp),
+            text = "Compressor.",
+            fontSize = 40.sp,
+            fontFamily= fontFamily,
+            color = Color.White,
+            fontWeight = FontWeight.Bold
+        )
 
 
-            ) {
-
-                // Logo Implemented in Rounded Rectangle for file compression
-                Image(
-                    painter = painterResource(id = R.drawable.article_fill0_wght400_grad0_opsz24),
-                    contentDescription = "Image of Image compression",
-                    modifier = Modifier
-                        .offset(x = 5.dp, y = (5).dp)
-                        .size(40.dp)
-
-                )
-
-
-            }
-
-        }
-        //rounded rectangle position
-        Column(
-            modifier = Modifier
-
-
-                .offset(40.dp, 200.dp)
-                .padding(0.dp)
-        ) {
 
             //rounded rectangle configuration
 
             Column(
                 modifier = Modifier
                     .height(296.dp)
-                    .width(296.dp)
+                    .width(330.dp)
+                    .offset(0.dp, 100.dp)
                     .background(
                         color = Color(android.graphics.Color.parseColor("#17273e")),
                         shape = RoundedCornerShape(15.dp)
@@ -216,57 +231,69 @@ fun WindowFileCompression(navController: NavHostController, sharedViewModel :dat
 
                 //Icon inside rounded rectangle
 
+                    if (isPdfSelected.value){
+                        Text(
 
-                Text(
-                    color = Color.White,
-                    text = "\tFilename: $selectedPdfName\n\tFilesize: $sizeOffile "
-                )
+                            color = Color.White,
+                            fontSize = 20.sp,
+                            fontFamily= fontFamily,
+                            fontWeight = FontWeight.Light,
+                            text = "Filename: \n$selectedPdfName \nFilesize: $sizeOffile "
+                        )
+                    } else{
+                        Text(
+                            color = Color.White,
+                            fontSize = 20.sp,
+                            fontFamily= fontFamily,
+                            fontWeight = FontWeight.Light,
+                            text = "Choose File!"
+                        )
+
+                    }
+
 
 
             }
 
+
+
+
+
+
+
+
+        fun startCompressing(selectedDocPath: String) = runBlocking{
+            GlobalScope.launch {
+                val python = Python.getInstance()
+                val pyModule = python.getModule("pdfCompressor")
+                val pyFunction = pyModule.callAttr("pdfCompress", selectedDocPath)
+                val pythonFilePath: String = pyFunction.toString()
+                val kotlinFile = File(pythonFilePath)
+                compressedDoc = kotlinFile
+                withContext(Dispatchers.Main) {
+                    sharedViewModel.receivePdfOut(PdfFile = compressedDoc)
+                    navController.navigate("donepdf")
+                }
+            }
+
+
         }
 
-
-        // Button Three is inside this Container
-        Column(
-
-            modifier = Modifier
-                .offset(25.dp, 650.dp)
-
-        ) {
-
-        }
-
-
-        // Done Button
-        Column(
-
-            modifier = Modifier
-                .offset(25.dp, 650.dp)
-
-        ) {
 
             Column(
                 modifier = Modifier
                     .height(68.dp)
                     .width(321.dp)
+                    .offset(10.dp, 530.dp)
                     .background(
                         color = Color(android.graphics.Color.parseColor("#526D82")),
                         shape = RoundedCornerShape(60.dp)
                     )
                     .border(3.dp, color = buttonStrokeColor, shape = RoundedCornerShape(60.dp))
                     .clickable {
-                        if (isPdfSelected.value){
-                            val python = Python.getInstance()
-                            val pyModule = python.getModule("pdfCompressor")
-                            val pyFunction = pyModule.callAttr("pdfCompress", selecteddocpath)
-                            val pythonFilePath: String = pyFunction.toString()
-                            val kotlinFile = File(pythonFilePath)
-                            compressedDoc = kotlinFile
+                        if (isPdfSelected.value) {
+                            selecteddocpath?.let { startCompressing(it) }
 
-                            sharedViewModel.receivePdfOut(PdfFile = compressedDoc)
-                            navController.navigate("donepdf")
                         } else {
                             Toast
                                 .makeText(context, "Select Pdf first", Toast.LENGTH_SHORT)
@@ -291,20 +318,14 @@ fun WindowFileCompression(navController: NavHostController, sharedViewModel :dat
                 )
             }
 
-        }
-        // select file button
 
-        Column(
 
-            modifier = Modifier
-                .offset(25.dp, 560.dp)
-
-        ) {
 
             Column(
                 modifier = Modifier
                     .height(68.dp)
                     .width(321.dp)
+                    .offset(10.dp, 430.dp)
                     .background(
                         color = Color(android.graphics.Color.parseColor("#526D82")),
                         shape = RoundedCornerShape(60.dp)
@@ -312,9 +333,7 @@ fun WindowFileCompression(navController: NavHostController, sharedViewModel :dat
                     .border(3.dp, color = buttonStrokeColor, shape = RoundedCornerShape(60.dp))
                     .clickable {
 
-                            FilePicker.launch(arrayOf("application/pdf"))
-
-
+                        FilePicker.launch(arrayOf("application/pdf"))
 
 
                     }
@@ -348,7 +367,7 @@ fun WindowFileCompression(navController: NavHostController, sharedViewModel :dat
 
             }
 
-        }
+
     }
 }
 

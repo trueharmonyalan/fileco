@@ -5,6 +5,7 @@ import android.provider.MediaStore
 import androidx.activity.ComponentActivity
 
 import androidx.activity.compose.setContent
+import androidx.compose.ui.text.googlefonts.GoogleFont
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
 
@@ -17,6 +18,7 @@ class MainActivity : ComponentActivity() {
         }
         setContent {
             FilecoTheme {
+
                 NavigationForFileCo()
 
             }
