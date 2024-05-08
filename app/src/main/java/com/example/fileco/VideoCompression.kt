@@ -27,6 +27,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -404,65 +406,127 @@ fun WindowVideoCompression(navController: NavHostController, sharedViewModel: da
 
         ) {
             Row {
-                Text(
-                    text = "Compression",
-                    fontSize = 25.sp,
-                    color = Color.White,
-                    letterSpacing = (-1).sp,
-                    fontWeight = FontWeight.Medium,
+//                Text(
+//                    text = "Compression",
+//                    fontSize = 25.sp,
+//                    color = Color.White,
+//                    letterSpacing = (-1).sp,
+//                    fontWeight = FontWeight.Medium,
+//
+//                    modifier = Modifier
+//                        .offset(x = 20.dp, y = (15).dp)
+//
+//                )
+//
+//
+//                TextField(
+//                    enabled = isVideoSelected.value,
+//                    value = qualityReader,
+//                    leadingIcon = {
+//                        Icon(
+//                            painter = painterResource(id = R.drawable.clarify_fill0_wght400_grad0_opsz24),
+//                            contentDescription = "quality icon",
+//
+//                            )
+//                    },
+//                    modifier = Modifier
+//                        .width(100.dp)
+//                        .offset(x = 70.dp, y = 5.dp)
+//                        .border(
+//                            width = 2.dp,
+//                            color = buttonStrokeColor,
+//                            shape = RoundedCornerShape(15.dp)
+//                        ),
+//                    colors = TextFieldDefaults.textFieldColors(
+//                        containerColor = Color.Transparent,
+//                        cursorColor = Color(android.graphics.Color.parseColor("#27374D")),
+//                        focusedTextColor = Color.White,
+//                        unfocusedTextColor = Color.White
+//
+//                    ),
+//
+//                    singleLine = true,
+//
+//
+//                    onValueChange = { userResponse ->
+//
+//                        if (userResponse.isEmpty()) {
+//                            qualityReader = ""
+//                        } else {
+//                            val numberCheck = userResponse.toIntOrNull()
+//                            if (numberCheck != null && numberCheck in 1..100) {
+//                                qualityReader = numberCheck.toString()
+//                                println(qualityReader)
+//
+//                                //quality reader is the variable use for compression operation
+//                            }
+//                        }
+//                    },
+//
+//
+//                    )
 
-                    modifier = Modifier
-                        .offset(x = 20.dp, y = (15).dp)
-
-                )
-
-
-                TextField(
+                Button(
                     enabled = isVideoSelected.value,
-                    value = qualityReader,
-                    leadingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.clarify_fill0_wght400_grad0_opsz24),
-                            contentDescription = "quality icon",
-
-                            )
-                    },
+                    colors = ButtonDefaults.buttonColors(Color(android.graphics.Color.parseColor("#17273e"))),
+                    shape = RoundedCornerShape(30.dp),
                     modifier = Modifier
-                        .width(100.dp)
-                        .offset(x = 70.dp, y = 5.dp)
+                        .offset((40).dp,10.dp)
                         .border(
-                            width = 2.dp,
+                            3.dp,
                             color = buttonStrokeColor,
-                            shape = RoundedCornerShape(15.dp)
+                            shape = RoundedCornerShape(60.dp)
                         ),
-                    colors = TextFieldDefaults.textFieldColors(
-                        containerColor = Color.Transparent,
-                        cursorColor = Color(android.graphics.Color.parseColor("#27374D")),
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White
-
-                    ),
-
-                    singleLine = true,
-
-
-                    onValueChange = { userResponse ->
-
-                        if (userResponse.isEmpty()) {
-                            qualityReader = ""
-                        } else {
-                            val numberCheck = userResponse.toIntOrNull()
-                            if (numberCheck != null && numberCheck in 1..100) {
-                                qualityReader = numberCheck.toString()
-                                println(qualityReader)
-
-                                //quality reader is the variable use for compression operation
-                            }
-                        }
-                    },
-
-
+                    onClick = {
+                        qualityReader = "5"
+                        Toast.makeText(context, "Compression set to 10% ", Toast.LENGTH_SHORT).show()
+                    }
+                ) {
+                    Text(
+                        color = Color.White,
+                        text = "10%"
                     )
+                }
+
+                Button(
+                    enabled = isVideoSelected.value,
+                    colors = ButtonDefaults.buttonColors(Color(android.graphics.Color.parseColor("#17273e"))),
+                    shape = RoundedCornerShape(30.dp),
+                    modifier = Modifier
+                        .offset((50).dp,10.dp)
+                        .border(3.dp, color = buttonStrokeColor, shape = RoundedCornerShape(60.dp)),
+                    onClick = {
+                        qualityReader = "15"
+                        Toast.makeText(context, "Compression set to 50% ", Toast.LENGTH_SHORT).show()
+                    }
+                ) {
+                    Text(
+                        color = Color.White,
+                        text = "50%"
+                    )
+                }
+
+                Button(
+                    enabled = isVideoSelected.value,
+                    colors = ButtonDefaults.buttonColors(Color(android.graphics.Color.parseColor("#17273e"))),
+                    shape = RoundedCornerShape(30.dp),
+                    modifier = Modifier
+                        .offset((60).dp,10.dp)
+                        .border(
+                            3.dp,
+                            color = buttonStrokeColor,
+                            shape = RoundedCornerShape(60.dp)
+                        ),
+                    onClick = {
+                        qualityReader = "30"
+                        Toast.makeText(context, "Compression set to 100% ", Toast.LENGTH_SHORT).show()
+                    }
+                ) {
+                    Text(
+                        color = Color.White,
+                        text = "~100%"
+                    )
+                }
             }
         }
 

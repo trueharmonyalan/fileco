@@ -16,4 +16,3 @@ def pdfCompress(input):
         writer.write(f)
         print("Processed file saved as", output_file)
     return output_file
-
